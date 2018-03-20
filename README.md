@@ -26,10 +26,3 @@ rml () {
   rm *.love
 }
 ```
-### Map-making Guide TODO
-in progress:
-- Define walls 'collidable'
-- Create object layer for spawn point
-- Create object layer for doors
-- Define enemy as an object with name 'enemy'
-- Make all objects and tiles 32x32
