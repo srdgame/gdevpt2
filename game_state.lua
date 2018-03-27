@@ -6,6 +6,7 @@ local bump = require("deps/bump/bump")
 local pprint = require('deps/pprint')
 
 -- State definitions
+local STATE_NULL = -9999
 local STATE_INTRO = -1
 local STATE_MOVING = 0
 local STATE_ENCOUNTER = 1
@@ -78,7 +79,7 @@ function GameState:_init(screen_width, screen_height)
   self.trust_bar = love.graphics.newImage('data/ui_trust_bar.png')
   self.trust_slider = love.graphics.newImage('data/ui_trust_slider.png')
   self.text_box_blank = love.graphics.newImage('data/textbox_blnk.png')
-  self.current_intro_char = 4
+  self.current_intro_char = 0
 end
 -- max chars on screen
 local max_lines = 5
@@ -99,11 +100,11 @@ function GameState:update(dt)
       self.state = STATE_MOVING
       self.return_state_after_text = STATE_MOVING
     else
-      self.current_intro_char = 4--self.current_intro_char + 1
+      self.current_intro_char = self.current_intro_char + 1
       self.state = STATE_SHOWING_TEXT
       self.return_state_after_text = STATE_INTRO
-      self.current_text = "foo"
-      --self.current_text = self:wrap_text(self.characters[self.current_intro_char].intro)
+      self.current_text =  self:wrap_text(self.characters[self.current_intro_char].intro)
+
     end
   elseif self.state == STATE_ENCOUNTER_INTRO then
     self.state = STATE_SHOWING_TEXT
@@ -167,6 +168,16 @@ function GameState:update(dt)
 
   elseif self.state == STATE_GET_NEXT_TEXT then
     if user_input_timer >= user_input_delay then
+         -- press enter to skip intro
+      if (self.return_state_after_text == STATE_INTRO)
+        and love.keyboard.isDown('return') then
+        user_input_timer = 0
+        self.state = STATE_MOVING
+        self.return_state_after_text = STATE_NULL
+        self.text_buffer = ""
+        self.current_text = ""
+        self.current_text_to_display_idx = 0
+      end
       if love.keyboard.isDown('space') then
         user_input_timer = 0
         self.current_text = self.text_buffer
@@ -177,6 +188,7 @@ function GameState:update(dt)
 
   elseif self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
     self.current_sfx:stop()
+
     -- render thought on initially selected character
     local get_thought_for_initial_character = self.current_character_thought == ""
     -- if the player pressed enter advance convo
@@ -409,21 +421,29 @@ function GameState:draw()
   if self.state == STATE_INTRO or ((self.state == STATE_GET_NEXT_TEXT
     or self.state == STATE_SHOWING_TEXT)
     and self.return_state_after_text == STATE_INTRO) then
+       -- scale world
+    local scale_screen_width =  love.graphics.getWidth() / 640
+    local scale_screen_height = love.graphics.getHeight() / 480
+    local swidth = love.graphics.getWidth() / scale_screen_width 
+    local sheight = love.graphics.getHeight() / scale_screen_height
+    love.graphics.scale(scale_screen_width, scale_screen_height)
+
     -- print character name
-    love.graphics.print({{255,255,128}, self.characters[self.current_intro_char].full_name}, math.floor(self.screen_width * .36), 110)
+    love.graphics.print({{255,255,128}, self.characters[self.current_intro_char].full_name}, math.floor(swidth * .36), 110)
     -- render character
-    love.graphics.draw(self.characters[self.current_intro_char].image_encounter, math.floor(self.screen_width * .4), 120)
+    love.graphics.draw(self.characters[self.current_intro_char].image_encounter, math.floor(swidth * .4), 120)
     -- render text box
-    love.graphics.draw(self.text_box_blank, 84, math.floor(self.screen_height * .5))
+    love.graphics.draw(self.text_box_blank, 84, math.floor(sheight * .5))
     -- render text
     local string_to_render = string.sub(self.current_text, 0, self.current_text_to_display_idx)
-    love.graphics.print({{255,255,128}, string_to_render}, 150, math.floor(self.screen_height * .535))
+    love.graphics.print({{255,255,128}, string_to_render}, 150, math.floor(sheight * .535))
 
     -- render 'next' modals
     if self.state == STATE_GET_NEXT_TEXT
     or (self.current_text_to_display_idx > 0
       and self.current_text_to_display_idx == string.len(self.current_text)) then
-      love.graphics.draw(self.continue, 500, math.floor(self.screen_height * .7), 0, 1, 1, 0, 0)
+      love.graphics.draw(self.continue, 500, math.floor(sheight * .7), 0, 1, 1, 0, 0)
+      love.graphics.print({{255,255,128}, "Press Enter to Skip..."}, 84, math.floor(sheight * .75), 0, 1, 1, 0, 0)
     end
 
   elseif not(self.return_state_after_text == STATE_INTRO)
