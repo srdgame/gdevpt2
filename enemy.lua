@@ -8,6 +8,7 @@ function Enemy:new(image_world, image_encounter, image_talk)
   local instance = {}
   self.__index = self
   self:_init(instance, image_world, image_encounter, image_talk)
+  setmetatable(instance, self)
   return instance
 end
 
