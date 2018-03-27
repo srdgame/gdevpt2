@@ -418,14 +418,15 @@ function GameState:has_collided(character_x, character_y, obj_x, obj_y, obj_w, o
 end
 
 function GameState:draw()
+  -- scale world
+  local scale_screen_width =  love.graphics.getWidth() / 640
+  local scale_screen_height = love.graphics.getHeight() / 480
+  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local sheight = love.graphics.getHeight() / scale_screen_height
   if self.state == STATE_INTRO or ((self.state == STATE_GET_NEXT_TEXT
     or self.state == STATE_SHOWING_TEXT)
     and self.return_state_after_text == STATE_INTRO) then
-       -- scale world
-    local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
+
     love.graphics.scale(scale_screen_width, scale_screen_height)
 
     -- print character name
@@ -455,12 +456,8 @@ function GameState:draw()
   or self.state == STATE_ESCAPE_ENCOUNTER
   or self.state == STATE_DIED_ENCOUNTER
   or self.state == STATE_ENCOUNTER_INTRO) then
-   -- scale world
-    local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
     love.graphics.scale(scale_screen_width, scale_screen_height)
+    
     -- render background and enemy
     love.graphics.draw(self.encounter_background, 0, 0, 0, 1, 1, 0, 0)
     love.graphics.draw(self.enemy.image_encounter,
@@ -568,12 +565,6 @@ function GameState:draw()
         85, math.floor(sheight * .25))
     end
   else
-    -- scale world
-    local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
-
     -- Translate world so that player is always centred
     local tx = math.floor(self.world_character.x - (swidth / 2) )
     local ty = math.floor(self.world_character.y - (sheight / 2) )
