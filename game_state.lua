@@ -435,10 +435,16 @@ function GameState:draw()
   or self.state == STATE_ESCAPE_ENCOUNTER
   or self.state == STATE_DIED_ENCOUNTER
   or self.state == STATE_ENCOUNTER_INTRO) then
+   -- scale world
+    local scale_screen_width =  love.graphics.getWidth() / 640
+    local scale_screen_height = love.graphics.getHeight() / 480
+    local swidth = love.graphics.getWidth() / scale_screen_width 
+    local sheight = love.graphics.getHeight() / scale_screen_height
+    love.graphics.scale(scale_screen_width, scale_screen_height)
     -- render background and enemy
     love.graphics.draw(self.encounter_background, 0, 0, 0, 1, 1, 0, 0)
     love.graphics.draw(self.enemy.image_encounter,
-      self.screen_width * .65, (self.screen_height / 2) - 10, 0, 1, 1, 0, 0)
+      swidth * .65, (sheight / 2) - 10, 0, 1, 1, 0, 0)
     -- render players
     local cur_character = self.characters[self.current_character]
     local bermund = self.characters[1]
@@ -464,18 +470,20 @@ function GameState:draw()
       or self.state == STATE_CHANGING_TRUST
       or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
       or self.state == STATE_GET_NEXT_TEXT then
+ 
+
       -- render textbox and talking head
         if self.current_talking_head == "narrator" then
           -- render textbox blnk
           love.graphics.draw(self.text_box_blank, 320, 3, 0, 1, 1, 240, 0)
-          love.graphics.print({{255,255,128}, self.prev_text}, 140, math.floor(self.screen_height * .04))
+          love.graphics.print({{255,255,128}, self.prev_text}, 140, math.floor(sheight * .04))
 
         elseif self.current_talking_head == "enemy" or
           ((self.current_talking_head == nil or string.len(self.current_talking_head) == 0)
           and self.prev_talking_head == "enemy") then
           love.graphics.draw(self.enemy_textbox, 320, 3, 0, 1, 1, 240, 0)
-          love.graphics.draw(self.enemy.image_talk, self.screen_width - 188, 15, 0, 1, 1, 0, 0)
-          love.graphics.print({{255,255,128}, self.prev_text}, 92, math.floor(self.screen_height * .04))
+          love.graphics.draw(self.enemy.image_talk, swidth - 188, 15, 0, 1, 1, 0, 0)
+          love.graphics.print({{255,255,128}, self.prev_text}, 92, math.floor(sheight * .04))
         else
           love.graphics.draw(self.textbox, 320, 3, 0, 1, 1, 240, 0)
           local head = self.current_talking_head
@@ -484,7 +492,7 @@ function GameState:draw()
           end
           love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
           love.graphics.print({{255, 255, 128}, self.prev_text},
-            198, math.floor(self.screen_height * .04))
+            198, math.floor(sheight * .04))
         end
       end
     -- render 'next' modals
@@ -493,7 +501,7 @@ function GameState:draw()
       and self.current_text_to_display_idx == string.len(self.current_text)) then
       local xposfactor = .15
       love.graphics.draw(self.continue,
-      math.floor(self.screen_width * xposfactor), 110, 0, 1, 1, 0, 0)
+      math.floor(swidth * xposfactor), 110, 0, 1, 1, 0, 0)
     end
 
     -- render selector
@@ -531,13 +539,13 @@ function GameState:draw()
   end
 
     -- render trust meter
-    love.graphics.draw(self.trust_bar, math.floor(self.screen_width * .6), math.floor(self.screen_height * .25))
-    love.graphics.draw(self.trust_slider, math.floor(self.screen_width * .8) + (self.enemy.trust * -4.7), math.floor(self.screen_height * .26))
+    love.graphics.draw(self.trust_bar, math.floor(swidth * .6), math.floor(sheight * .25))
+    love.graphics.draw(self.trust_slider, math.floor(swidth * .8) + (self.enemy.trust * -4.7), math.floor(sheight * .26))
     -- render thought bubble
     if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
     and string.len(self.current_character_thought) > 0 then
       love.graphics.print({{255, 255, 128}, "THOUGHT: " .. self.current_character_thought},
-        85, math.floor(self.screen_height * .25))
+        85, math.floor(sheight * .25))
     end
   else
     -- scale world
@@ -614,6 +622,13 @@ function GameState:initialize_map(map, coords)
 end
 
 function GameState:initialize_characters(animation)
+  -- TODO: make this better
+      local scale_screen_width =  love.graphics.getWidth() / 640
+    local scale_screen_height = love.graphics.getHeight() / 480
+    local swidth = love.graphics.getWidth() / scale_screen_width 
+    local sheight = love.graphics.getHeight() / scale_screen_height
+
+
   self.world_character = Character:new(love.graphics.newImage('data/battle_graadiabs.png'),
     nil,
     screen_width,
@@ -629,8 +644,8 @@ function GameState:initialize_characters(animation)
     love.graphics.newImage('data/textbox_bermund.png'),
     screen_width,
     screen_height,
-    self.screen_width * .05 + 96,
-    self.screen_height * .35)
+    swidth * .05 + 96,
+    sheight * .35)
     bermund.full_name = "Berimund Dean, Half-Orc Thief"
     bermund.intro = "Berimund grew up an orphan working in a blacksmith's shop, and he fancied himself an actor. He tried out different accents on each customer, and reveled in their reactions. Berimund generally enjoyed his work-he was good at convincing customers that they deserved to buy the highest quality goods. However, the shop burned down three years into his employment, and he was only able to rescue a small set of throwing knives from the blaze. Berimund tried his hand at the town's theatre, but he could never land a role. When a year had passed after the shop burned down, Berimund found himself completely out of savings, with no prospect of a job, and no remaining family to turn to. He finally unwrapped the set of knives that he'd saved for a year, still pristine. He briefly considered selling them, but found that they were much better suited for cutting purses instead."
 
@@ -674,8 +689,8 @@ function GameState:initialize_characters(animation)
   love.graphics.newImage('data/textbox_sheera.png'),
   screen_width,
   screen_height,
-  self.screen_width * .05 + 48,
-  self.screen_height * .5)
+  swidth * .05 + 48,
+  sheight * .5)
   sheera.full_name = "Sheera Torfaren, Elven Mage"
   sheera.intro = "Born into money, Sheera has never wanted for much. She began studying magic when she was just a little girl. She had several older siblings, so her parents were very comfortable sending her off to a magic academy, sleeping well with the knowledge that their aristocratic legacy was safe in their older offspring. Sheera spent almost ten years studying the intricacies of arcane magic, and when she finally returned to her family, they were... unimpressed. She was so caught up in her own studies and what she would be able to accomplish that she had never considered how little her family had really thought about her during her absence. She tried to fit back in with an already dysfunctional group of people that she hadn't spoken with in ten years, and simply couldn't fit. Sheera then decided that she would find herself a new family: one who could appreciate her dedication to magic."
   sheera.benchmarks =
@@ -722,8 +737,8 @@ function GameState:initialize_characters(animation)
     love.graphics.newImage('data/textbox_holly.png'),
     screen_width,
     screen_height,
-    self.screen_width * .05,
-    self.screen_height * .65)
+    swidth * .05,
+    sheight * .65)
     holly.full_name = "Holly Wallace, Human Warrior"
     holly.intro = "Holly's origins are simple. Born on a small, family-owned farm, Holly grew up around folk with a solid work ethic and small desires. She wasted little and wanted for nothing, until she reached around eighteen years of age, when her farm was attacked by monsters. Her father had always had an old sword, \"just in case.\" Amidst the cacophony of terrified barn animals and ravenous, bloodthirsty monsters, Holly wrapped her hand around the hilt of that rusty, cracked old longsword, and defended her farm. Once the monsters were chased off, she resolved to take her newfound strength to where people needed it, especially lowly farmers or the poor, and she's been on that noble quest ever since. "
     holly.benchmarks =
