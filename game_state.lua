@@ -127,16 +127,28 @@ function GameState:update(dt)
       elseif love.keyboard.isDown('r') then
          user_input_timer = 0
          self.state = STATE_RESOLUTION_SELECT
+      elseif love.keyboard.isDown('q') then
+        love.event.quit()
       end
     end
   elseif self.state == STATE_RESOLUTION_SELECT then
     if user_input_timer >= user_input_delay then
+      local change_res = false
       if love.keyboard.isDown('escape') then
         user_input_timer = 0
         self.state = STATE_MAIN_MENU
-      elseif love.keyboard.isDown(1) then
-        self.screen_width = self.resolutions[1].w
-        self.screen_height = self.resolutions[1].h
+      end
+      for ii=1,5 do
+        if love.keyboard.isDown(ii) then
+          self.screen_width = self.resolutions[ii].w
+          self.screen_height = self.resolutions[ii].h
+          change_res = true
+          goto change_res -- no break statement!
+        end
+      end
+      
+      ::change_res::
+      if change_res then
         love.window.setMode(self.screen_width, self.screen_height)
         self:reset_character_encounter_positions()
       end
@@ -461,7 +473,10 @@ function GameState:draw()
   love.graphics.scale(scale_screen_width, scale_screen_height)
 
   if self.state == STATE_MAIN_MENU then
-    love.graphics.print({{255,255,128}, "Press Space to Start..."}, math.floor(swidth * .3), math.floor(sheight / 2), 0, 1, 1, 0, 0)
+    love.graphics.print({{255,255,128}, "Press Space to Start..."}, math.floor(swidth * .3), math.floor(sheight / 2))
+    love.graphics.print({{255,255,128}, "Press r to change resolution"}, math.floor(swidth * .3), math.floor(sheight * .6))
+    love.graphics.print({{255,255,128}, "Press q to quit"}, math.floor(swidth * .3), math.floor(sheight * .7))
+  
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
     for k,v in pairs(self.resolutions) do
@@ -691,12 +706,10 @@ function GameState:reset_character_encounter_positions()
 end
 
 function GameState:initialize_characters(animation)
-  -- TODO: make this better
-      local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
-
+  local scale_screen_width =  love.graphics.getWidth() / 640
+  local scale_screen_height = love.graphics.getHeight() / 480
+  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.world_character = Character:new(love.graphics.newImage('data/battle_graadiabs.png'),
     nil,
