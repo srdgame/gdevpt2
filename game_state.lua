@@ -19,6 +19,10 @@ local STATE_ESCAPE_ENCOUNTER = 7
 local STATE_DIED_ENCOUNTER = 8
 local STATE_ENCOUNTER_INTRO = 9
 
+-- Menu State
+local STATE_MAIN_MENU = 10
+local STATE_RESOLUTION_SELECT = 11
+
 -- Represents the GameState
 -- This is everything in the game world that is updated and rendered.
 local GameState = {}
@@ -44,7 +48,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_INTRO
+  self.state = STATE_MAIN_MENU
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -80,6 +84,13 @@ function GameState:_init(screen_width, screen_height)
   self.trust_slider = love.graphics.newImage('data/ui_trust_slider.png')
   self.text_box_blank = love.graphics.newImage('data/textbox_blnk.png')
   self.current_intro_char = 0
+  self.resolutions = {
+    { w = 640, h = 480 },
+    { w = 1280, h = 960 },
+    { w = 1440, h = 900 },
+    { w = 1600, h = 1200 },
+    { w = 1920, h = 1440 }
+  }
 end
 -- max chars on screen
 local max_lines = 5
@@ -105,6 +116,42 @@ function GameState:update(dt)
       self.return_state_after_text = STATE_INTRO
       self.current_text =  self:wrap_text(self.characters[self.current_intro_char].intro)
 
+    end
+  elseif self.state == STATE_MAIN_MENU then
+    if user_input_timer >= user_input_delay then
+      if love.keyboard.isDown('space') then
+        user_input_timer = 0
+        self.state = STATE_INTRO
+        -- re-update before draw.
+        self:update(dt)
+      elseif love.keyboard.isDown('r') then
+         user_input_timer = 0
+         self.state = STATE_RESOLUTION_SELECT
+      elseif love.keyboard.isDown('q') then
+        love.event.quit()
+      end
+    end
+  elseif self.state == STATE_RESOLUTION_SELECT then
+    if user_input_timer >= user_input_delay then
+      local change_res = false
+      if love.keyboard.isDown('escape') then
+        user_input_timer = 0
+        self.state = STATE_MAIN_MENU
+      end
+      for ii=1,5 do
+        if love.keyboard.isDown(ii) then
+          self.screen_width = self.resolutions[ii].w
+          self.screen_height = self.resolutions[ii].h
+          change_res = true
+          goto change_res -- no break statement!
+        end
+      end
+      
+      ::change_res::
+      if change_res then
+        love.window.setMode(self.screen_width, self.screen_height)
+        self:reset_character_encounter_positions()
+      end
     end
   elseif self.state == STATE_ENCOUNTER_INTRO then
     self.state = STATE_SHOWING_TEXT
@@ -418,15 +465,27 @@ function GameState:has_collided(character_x, character_y, obj_x, obj_y, obj_w, o
 end
 
 function GameState:draw()
-  if self.state == STATE_INTRO or ((self.state == STATE_GET_NEXT_TEXT
+  -- scale world
+  local scale_screen_width =  love.graphics.getWidth() / 640
+  local scale_screen_height = love.graphics.getHeight() / 480
+  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local sheight = love.graphics.getHeight() / scale_screen_height
+  love.graphics.scale(scale_screen_width, scale_screen_height)
+
+  if self.state == STATE_MAIN_MENU then
+    love.graphics.print({{255,255,128}, "Press Space to Start..."}, math.floor(swidth * .3), math.floor(sheight / 2))
+    love.graphics.print({{255,255,128}, "Press r to change resolution"}, math.floor(swidth * .3), math.floor(sheight * .6))
+    love.graphics.print({{255,255,128}, "Press q to quit"}, math.floor(swidth * .3), math.floor(sheight * .7))
+  
+  elseif self.state == STATE_RESOLUTION_SELECT then
+    love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
+    for k,v in pairs(self.resolutions) do
+      love.graphics.print({{255,255,128}, k .. ")" .. " " .. v.w .. "x" .. v.h}, math.floor(swidth * .4), math.floor(sheight / 3) + (k * 20))
+    end
+  elseif self.state == STATE_INTRO or ((self.state == STATE_GET_NEXT_TEXT
     or self.state == STATE_SHOWING_TEXT)
     and self.return_state_after_text == STATE_INTRO) then
-       -- scale world
-    local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
-    love.graphics.scale(scale_screen_width, scale_screen_height)
+
 
     -- print character name
     love.graphics.print({{255,255,128}, self.characters[self.current_intro_char].full_name}, math.floor(swidth * .36), 110)
@@ -455,12 +514,7 @@ function GameState:draw()
   or self.state == STATE_ESCAPE_ENCOUNTER
   or self.state == STATE_DIED_ENCOUNTER
   or self.state == STATE_ENCOUNTER_INTRO) then
-   -- scale world
-    local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
-    love.graphics.scale(scale_screen_width, scale_screen_height)
+    
     -- render background and enemy
     love.graphics.draw(self.encounter_background, 0, 0, 0, 1, 1, 0, 0)
     love.graphics.draw(self.enemy.image_encounter,
@@ -568,16 +622,9 @@ function GameState:draw()
         85, math.floor(sheight * .25))
     end
   else
-    -- scale world
-    local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
-
     -- Translate world so that player is always centred
     local tx = math.floor(self.world_character.x - (swidth / 2) )
     local ty = math.floor(self.world_character.y - (sheight / 2) )
-    love.graphics.scale(scale_screen_width, scale_screen_height)
     love.graphics.translate(-tx, -ty)
     self.map:draw(-tx, -ty, scale_screen_width, scale_screen_height)
 
@@ -641,13 +688,28 @@ function GameState:initialize_map(map, coords)
   end
 end
 
-function GameState:initialize_characters(animation)
-  -- TODO: make this better
-      local scale_screen_width =  love.graphics.getWidth() / 640
-    local scale_screen_height = love.graphics.getHeight() / 480
-    local swidth = love.graphics.getWidth() / scale_screen_width 
-    local sheight = love.graphics.getHeight() / scale_screen_height
+function GameState:reset_character_encounter_positions()
+  local scale_screen_width =  love.graphics.getWidth() / 640
+  local scale_screen_height = love.graphics.getHeight() / 480
+  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local sheight = love.graphics.getHeight() / scale_screen_height
 
+  self.characters[1].encounter_x = swidth * .05 + 96
+  self.characters[1].encounter_y = sheight * .35
+
+  self.characters[2].encounter_x = swidth * .05 + 48
+  self.characters[2].encounter_y = sheight * .5
+
+  self.characters[3].encounter_x = swidth * .05
+  self.characters[3].encounter_y = sheight * .65
+
+end
+
+function GameState:initialize_characters(animation)
+  local scale_screen_width =  love.graphics.getWidth() / 640
+  local scale_screen_height = love.graphics.getHeight() / 480
+  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.world_character = Character:new(love.graphics.newImage('data/battle_graadiabs.png'),
     nil,
