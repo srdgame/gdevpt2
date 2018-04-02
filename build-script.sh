@@ -1,0 +1,1 @@
+open -n -a love "/Users/Eric/Documents/GitHub/gdevpt2"
