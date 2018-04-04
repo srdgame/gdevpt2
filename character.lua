@@ -35,6 +35,7 @@ function Character._init(instance, image_world, image_encounter,
   instance.stressed_move = {}
   instance.image_talk = image_talk
   instance.intro = ""
+  instance.campfire = nil
 end
 
 function Character:increase_stress()
@@ -61,6 +62,10 @@ end
 
 function Character:get_benchmark_move(benchmark_number, benchmark_position)
   return self.benchmarks[benchmark_number][benchmark_position]
+end
+
+function Character:get_campfire_move(benchmark_position)
+  return self.campfire[benchmark_position]
 end
 
 function Character:is_next_move_nil(benchmark_number, benchmark_position)
