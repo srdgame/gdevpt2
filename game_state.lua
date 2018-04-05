@@ -558,13 +558,13 @@ function GameState:draw()
       local bermund = self.characters[1]
       local sheera = self.characters[2]
       local holly = self.characters[3]
-      love.graphics.draw(bermund.campfire_image, bermund.encounter_x, bermund.encounter_y)
-      love.graphics.draw(sheera.campfire_image, sheera.encounter_x, sheera.encounter_y)
-      love.graphics.draw(holly.campfire_image, holly.encounter_x, holly.encounter_y)
+      love.graphics.draw(bermund.campfire_image, bermund.campfire_x, bermund.campfire_y)
+      love.graphics.draw(sheera.campfire_image, sheera.campfire_x, sheera.campfire_y)
+      love.graphics.draw(holly.campfire_image, holly.campfire_x, holly.campfire_y)
       -- render selector
       if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
-        love.graphics.draw(self.selector, cur_character.encounter_x - 5,
-          cur_character.encounter_y + 20, 0, 1, 1, 0, 0)
+        love.graphics.draw(self.selector, cur_character.campfire_x - 5,
+          cur_character.campfire_y + 20, 0, 1, 1, 0, 0)
       end
       -- render text
       local string_to_render = self.current_text
@@ -589,15 +589,16 @@ function GameState:draw()
           end
       end
 
-      for k,v in pairs(self.characters) do
-        local idea = self.new_idea
-        if (self.characters[k]:get_campfire_move(self.campfire_position)) == nil then
-          idea = self.old_idea
+      if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
+        for k,v in pairs(self.characters) do
+          local idea = self.new_idea
+          if (self.characters[k]:get_campfire_move(self.campfire_position)) == nil then
+            idea = self.old_idea
+          end
+          love.graphics.draw(idea, self.characters[k].campfire_x + 25,
+            self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
         end
-        love.graphics.draw(idea, self.characters[k].encounter_x + 25,
-          self.characters[k].encounter_y - 10, 0, 1, 1, 0, 0) 
       end
-
     -- render 'next' modals
     if self.state == STATE_GET_NEXT_TEXT
     or (self.current_text_to_display_idx > 0
@@ -889,6 +890,9 @@ function GameState:initialize_characters(animation)
   {
     text = "Please, my lord, tallest of the short ones! Oh, shit..."
   }
+  bermund.campfire_x = bermund.encounter_x + 30
+  bermund.campfire_y = bermund.encounter_y
+
   sheera = Character:new(nil,
   love.graphics.newImage('data/battle_sheera.png'),
   love.graphics.newImage('data/textbox_sheera.png'),
@@ -956,6 +960,8 @@ function GameState:initialize_characters(animation)
         nil
     }
     sheera.campfire_image = love.graphics.newImage('data/campfire_sheera.png')
+    sheera.campfire_x = sheera.encounter_x * 4.5
+    sheera.campfire_y = sheera.encounter_y
 
     holly = Character:new(nil,
     love.graphics.newImage('data/battle_holly.png'),
@@ -1024,7 +1030,8 @@ function GameState:initialize_characters(animation)
         "Something."
     }
     holly.campfire_image = love.graphics.newImage('data/campfire_holly.png')
-
+    holly.campfire_x = holly.encounter_x + 60
+    holly.campfire_y = holly.encounter_y - 40
     self.characters[1] = bermund
     self.characters[2] = sheera
     self.characters[3] = holly
