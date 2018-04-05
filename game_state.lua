@@ -277,6 +277,7 @@ function GameState:update(dt)
         local move = self.characters[self.current_character]:get_benchmark_move(self.current_benchmark, self.current_benchmark_position)
         -- INPUT FOR CAMPFIRE
         if self.is_campfire then
+          -- check if it's over
             move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)               
           if move == nil then
             self.current_text = "..."
@@ -373,7 +374,7 @@ function GameState:update(dt)
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
     
-    if self.campfire_position == 17 then
+    if self.campfire_position == 16 then
       self.state = STATE_MOVING
       self.is_campfire = false
       self.had_campfire = true
