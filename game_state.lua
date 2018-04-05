@@ -48,7 +48,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_MAIN_MENU
+  self.state = STATE_CAMPFIRE
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -574,7 +574,8 @@ function GameState:draw()
       end
       if self.state == STATE_SHOWING_TEXT
         or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
-        or self.state == STATE_GET_NEXT_TEXT then
+        or self.state == STATE_GET_NEXT_TEXT
+        or self.state == STATE_CAMPFIRE then
           local head = self.current_talking_head
           if head == nil then
             head = self.prev_talking_head
@@ -856,7 +857,22 @@ function GameState:initialize_characters(animation)
 
     bermund.campfire =
     {
-      "And they said I could never make it in the theatre."
+      "And they said I could never make it in the theatre.",
+      nil,
+      "You wound me! We survived, didn't we?",
+      nil,
+      "So, what's our next daring adventure?",
+      "Have you ladies heard about the new lord of the realm? Sounds like a real piece of work. Maybe there's profit to be had in... inconveniencing him.",
+      nil,
+      nil,
+      "I mean, we're not seriously considering taking this guy on, are we? We're just three assholes." ,
+      nil,
+      nil,
+      nil,
+      "All right, he's definitely the worst and we're doing something about it.",
+      nil,
+      "Something."
+
     }
     bermund.campfire_image = love.graphics.newImage('data/campfire_bermund.png')
 
@@ -914,6 +930,20 @@ function GameState:initialize_characters(animation)
 
     sheera.campfire =
     {
+        nil,
+        "You probably couldn't, unless the audience were all goblins.",
+        nil,
+        "That's fair, I suppose.",
+        "We didn't get much in terms of treasure, though. Seems like every crypt, dungeon, and ruin is occupied these days. If we're not careful, we might be out of a job. ",
+        nil,
+        "Easier said than done. He's a powerful political figure, he won't just let us kindly insert a knife into his chest." ,
+        "Perhaps we could start small...",
+        nil,
+        "Did you hear that he promotes his soldiers to generals based solely on their reputation for cruelty?",
+        "Or that his second-in-command actively burns arcane practitioners at the stake, and that he just doesn't care?",
+        "Or that he's executed his entire court twice over already?",
+        nil,
+        "...What CAN we do, though?",
         nil
     }
     sheera.campfire_image = love.graphics.newImage('data/campfire_sheera.png')
@@ -968,7 +998,21 @@ function GameState:initialize_characters(animation)
 
     holly.campfire =
     {
-        nil
+        nil,
+        "I mean, I'm inclined to agree. There's overacting and then there's you.",
+        "Still though, I guess we're still alive, so... thanks.",
+        nil,
+        "So, what's next?",
+        "Every farmer and townsperson I talk to is upset with all the political nonsense going on these days. We're three strong, brave heroes. Maybe we could do some good!",
+        nil,
+        "No, of course not. Then someone else would've done it.",
+        nil,
+        "Did you hear about how he demands from farmers twice the food they can produce?",
+        "Or that he constantly declares that all Orcs are criminals?",
+        "Or that he told townsfolk who were asking for protection from monsters that they should just buy swords themselves?",
+        nil,
+        nil,
+        "Something."
     }
     holly.campfire_image = love.graphics.newImage('data/campfire_holly.png')
 
