@@ -92,6 +92,7 @@ function GameState:_init(screen_width, screen_height)
     { w = 1920, h = 1440 }
   }
   self.is_campfire = false
+  self.had_campfire = false
   self.campfire_position = 0
   self.campfire_background = love.graphics.newImage('data/background_campfire.png')
 
@@ -357,7 +358,11 @@ function GameState:update(dt)
     end
     self.current_talking_head = "enemy"
     self.state = STATE_SHOWING_TEXT
-    self.return_state_after_text = STATE_MOVING
+    if self.had_campfire then
+      self.return_state_after_text = STATE_MOVING
+    else
+      self.return_state_after_text = STATE_CAMPFIRE
+    end
     -- remove enemy from map
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
@@ -371,6 +376,7 @@ function GameState:update(dt)
     if self.campfire_position == 17 then
       self.state = STATE_MOVING
       self.is_campfire = false
+      self.had_campfire = true
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
@@ -574,7 +580,7 @@ function GameState:draw()
             head = self.prev_talking_head
           end
 
-          if not (head == nil) then
+          if not (head == nil) and (head == 1 or head == 2 or head == 3) then
             love.graphics.draw(self.textbox, 320, 3, 0, 1, 1, 240, 0)
             love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
             love.graphics.print({{255, 255, 128}, self.prev_text},
