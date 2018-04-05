@@ -94,6 +94,7 @@ function GameState:_init(screen_width, screen_height)
   self.is_campfire = 0
   self.campfire_position = 0
   self.campfire_background = love.graphics.newImage('data/background_campfire.png')
+  self.in_campfire = 0
 
 end
 -- max chars on screen
@@ -238,45 +239,44 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
-    
    -- self.current_sfx:stop()
 
     -- render thought on initially selected character
     local get_thought_for_initial_character = self.current_character_thought == ""
     -- if the player pressed enter advance convo
-    if user_input_timer >= user_input_delay
-    or get_thought_for_initial_character then
-      if love.keyboard.isDown('s') or love.keyboard.isDown('w')
-      or get_thought_for_initial_character then
+    if user_input_timer >= user_input_delay or (get_thought_for_initial_character and not self.return_state_after_text == STATE_CAMPFIRE) then
+      if get_thought_for_initial_character and  not self.return_state_after_text == STATE_CAMPFIRE then
+        goto get_thought
+      end
+      -- go to next valid character
+      if love.keyboard.isDown('s') then
         user_input_timer = 0
-        -- go to next valid character
-        if not get_thought_for_initial_character then
-          if love.keyboard.isDown('s') then
-            self.current_character = (self.current_character % 3) + 1
-          else
-            self.current_character = ((self.current_character - 2) % 3) + 1
-          end
-        end
-        if self.is_campfire then
-            self.current_character_thought = ""
+        self.current_character = (self.current_character % 3) + 1
+      elseif love.keyboard.isDown('w') then
+        user_input_timer = 0          
+        self.current_character = ((self.current_character - 2) % 3) + 1
+      end
+      ::get_thought::
+      if self.is_campfire then
+          self.current_character_thought = ""
+      else
+        if self.characters[self.current_character]:is_next_move_nil(self.current_benchmark, self.current_benchmark_position) then
+          self.current_character_thought = "..."
         else
-          if self.characters[self.current_character]:is_next_move_nil(self.current_benchmark, self.current_benchmark_position) then
-            self.current_character_thought = "..."
-          else
-            self.current_character_thought = self.characters[self.current_character]:get_thought(self.current_benchmark, self.current_benchmark_position)
-          end
+          self.current_character_thought = self.characters[self.current_character]:get_thought(self.current_benchmark, self.current_benchmark_position)
+        end
       end
 
-      elseif love.keyboard.isDown('space') then
+      if love.keyboard.isDown('space') then
         user_input_timer = 0
         -- the current character makes his move
         self.current_talking_head = self.current_character
         self.state = STATE_SHOWING_TEXT
         self.return_state_after_text = STATE_CHANGING_TRUST
-        
+         
         local move = self.characters[self.current_character]:get_benchmark_move(self.current_benchmark, self.current_benchmark_position)
         if self.is_campfire then
-          move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)
+          move.text = self.characters[self.current_character]:get_campfire_move(self.campfire_position)
           if move == nil then
             self.current_text = "..."
           else
@@ -365,14 +365,17 @@ function GameState:update(dt)
       self.is_campfire = 1
       self.state = STATE_CAMPFIRE
     end
+
   elseif self.state == STATE_CAMPFIRE then
     self.campfire_position = self.campfire_position + 1
+    self.in_campfire = 1
     -- TODO: check if it's over
     if self.campfire_position == 17 then
       self.state = STATE_MOVING
+      self.in_campfire = 0
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
-     self.return_state_after_input = STATE_CAMPFIRE
+     self.return_state_after_text = STATE_CAMPFIRE
    end
   end
 end
@@ -543,7 +546,8 @@ function GameState:draw()
     end
 
   elseif (self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
-    and self.return_state_after_input == STATE_CAMPFIRE) then
+    and self.return_state_after_text == STATE_CAMPFIRE) 
+    or self.in_campfire then
       -- render campfire scene
       love.graphics.draw(self.campfire_background, 0, 0, 0, 1, 1, 0, 0)
       -- render characters
@@ -555,6 +559,10 @@ function GameState:draw()
       love.graphics.draw(sheera.campfire_image, sheera.encounter_x, sheera.encounter_y)
       love.graphics.draw(holly.campfire_image, holly.encounter_x, holly.encounter_y)
       -- render selector
+      if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
+        love.graphics.draw(self.selector, cur_character.encounter_x - 5,
+          cur_character.encounter_y + 20, 0, 1, 1, 0, 0)
+      end
       -- render text
   elseif not(self.return_state_after_text == STATE_INTRO)
     and(self.state == STATE_ENCOUNTER
