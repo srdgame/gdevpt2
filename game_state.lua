@@ -502,7 +502,7 @@ end
 
 function GameState:has_collided(character_x, character_y, obj_x, obj_y, obj_w, obj_h)
   if not ((obj_w + obj_x <= character_x + 8 or character_x + 24 <= obj_x)
-  or (obj_h + obj_y <= character_y + 8 or obj_y >= character_y + 24)) then
+  or (obj_h + obj_y <= character_y + 20 or obj_y >= character_y + 36)) then
     return true
   end
   return false
