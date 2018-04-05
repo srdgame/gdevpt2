@@ -48,7 +48,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_CAMPFIRE
+  self.state = STATE_MAIN_MENU
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
