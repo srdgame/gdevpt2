@@ -589,6 +589,15 @@ function GameState:draw()
           end
       end
 
+      for k,v in pairs(self.characters) do
+        local idea = self.new_idea
+        if (self.characters[k]:get_campfire_move(self.campfire_position)) == nil then
+          idea = self.old_idea
+        end
+        love.graphics.draw(idea, self.characters[k].encounter_x + 25,
+          self.characters[k].encounter_y - 10, 0, 1, 1, 0, 0) 
+      end
+
     -- render 'next' modals
     if self.state == STATE_GET_NEXT_TEXT
     or (self.current_text_to_display_idx > 0
