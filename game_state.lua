@@ -275,15 +275,17 @@ function GameState:update(dt)
         self.return_state_after_text = STATE_CHANGING_TRUST
          
         local move = self.characters[self.current_character]:get_benchmark_move(self.current_benchmark, self.current_benchmark_position)
+        -- INPUT FOR CAMPFIRE
         if self.is_campfire then
-          move.text = self.characters[self.current_character]:get_campfire_move(self.campfire_position)
+            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)               
           if move == nil then
             self.current_text = "..."
           else
-            self.current_text = self:wrap_text(move.text)
+
+            self.current_text = self:wrap_text(move)
             self.current_character_thought = ""
-            self.return_state_after_text = STATE_CAMPFIRE
           end
+          self.return_state_after_text = STATE_CAMPFIRE
           goto end_enc_wait_for_input
         end
         move = self.characters[self.current_character]:get_benchmark_move(self.current_benchmark, self.current_benchmark_position)
@@ -545,7 +547,10 @@ function GameState:draw()
       love.graphics.print({{255,255,128}, "Press Enter to Skip..."}, 84, math.floor(sheight * .75), 0, 1, 1, 0, 0)
     end
 
-  elseif (self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
+    -- CAMPFIRE
+  elseif ((self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
+    or self.state == STATE_GET_NEXT_TEXT
+    or self.state == STATE_SHOWING_TEXT)
     and self.return_state_after_text == STATE_CAMPFIRE) 
     or self.in_campfire then
       -- render campfire scene
@@ -564,6 +569,36 @@ function GameState:draw()
           cur_character.encounter_y + 20, 0, 1, 1, 0, 0)
       end
       -- render text
+      local string_to_render = self.current_text
+      string_to_render = string.sub(self.current_text, 0, self.current_text_to_display_idx)
+      if not (self.current_text == "") then
+        self.prev_text = string_to_render
+      end
+      if self.state == STATE_SHOWING_TEXT
+        or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
+        or self.state == STATE_GET_NEXT_TEXT then
+          local head = self.current_talking_head
+          if head == nil then
+            head = self.prev_talking_head
+          end
+
+          if not (head == nil) then
+            love.graphics.draw(self.textbox, 320, 3, 0, 1, 1, 240, 0)
+            love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
+            love.graphics.print({{255, 255, 128}, self.prev_text},
+              198, math.floor(sheight * .04))
+          end
+      end
+
+    -- render 'next' modals
+    if self.state == STATE_GET_NEXT_TEXT
+    or (self.current_text_to_display_idx > 0
+      and self.current_text_to_display_idx == string.len(self.current_text)) then
+      local xposfactor = .15
+      love.graphics.draw(self.continue,
+      math.floor(swidth * xposfactor), 110, 0, 1, 1, 0, 0)
+    end
+
   elseif not(self.return_state_after_text == STATE_INTRO)
     and(self.state == STATE_ENCOUNTER
   or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
@@ -825,11 +860,7 @@ function GameState:initialize_characters(animation)
 
     bermund.campfire =
     {
-      {
-        {
-          text = "And they said I could never make it in the theatre."
-        }
-      }
+      "And they said I could never make it in the theatre."
     }
     bermund.campfire_image = love.graphics.newImage('data/campfire_bermund.png')
 
@@ -887,9 +918,7 @@ function GameState:initialize_characters(animation)
 
     sheera.campfire =
     {
-      {
         nil
-      }
     }
     sheera.campfire_image = love.graphics.newImage('data/campfire_sheera.png')
 
@@ -943,9 +972,7 @@ function GameState:initialize_characters(animation)
 
     holly.campfire =
     {
-      {
         nil
-      }
     }
     holly.campfire_image = love.graphics.newImage('data/campfire_holly.png')
 
