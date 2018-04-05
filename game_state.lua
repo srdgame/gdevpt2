@@ -373,7 +373,7 @@ function GameState:update(dt)
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
     
-    if self.campfire_position == 17 then
+    if self.campfire_position == 16 then
       self.state = STATE_MOVING
       self.is_campfire = false
       self.had_campfire = true
@@ -592,11 +592,10 @@ function GameState:draw()
       if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
         for k,v in pairs(self.characters) do
           local idea = self.new_idea
-          if (self.characters[k]:get_campfire_move(self.campfire_position)) == nil then
-            idea = self.old_idea
+          if (self.characters[k]:get_campfire_move(self.campfire_position)) then
+            love.graphics.draw(idea, self.characters[k].campfire_x + 25,
+              self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
           end
-          love.graphics.draw(idea, self.characters[k].campfire_x + 25,
-            self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
         end
       end
     -- render 'next' modals
