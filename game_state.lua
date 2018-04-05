@@ -48,7 +48,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_CAMPFIRE
+  self.state = STATE_MAIN_MENU
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -91,10 +91,9 @@ function GameState:_init(screen_width, screen_height)
     { w = 1600, h = 1200 },
     { w = 1920, h = 1440 }
   }
-  self.is_campfire = 0
+  self.is_campfire = false
   self.campfire_position = 0
   self.campfire_background = love.graphics.newImage('data/background_campfire.png')
-  self.in_campfire = 0
 
 end
 -- max chars on screen
@@ -363,18 +362,15 @@ function GameState:update(dt)
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
     --self.current_sfx:stop()
-    if self.is_campfire == 0 then
-      self.is_campfire = 1
-      self.state = STATE_CAMPFIRE
-    end
+
 
   elseif self.state == STATE_CAMPFIRE then
     self.campfire_position = self.campfire_position + 1
-    self.in_campfire = 1
+    self.is_campfire = true
     -- TODO: check if it's over
     if self.campfire_position == 17 then
       self.state = STATE_MOVING
-      self.in_campfire = 0
+      self.is_campfire = false
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
@@ -548,11 +544,7 @@ function GameState:draw()
     end
 
     -- CAMPFIRE
-  elseif ((self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
-    or self.state == STATE_GET_NEXT_TEXT
-    or self.state == STATE_SHOWING_TEXT)
-    and self.return_state_after_text == STATE_CAMPFIRE) 
-    or self.in_campfire then
+  elseif self.is_campfire then
       -- render campfire scene
       love.graphics.draw(self.campfire_background, 0, 0, 0, 1, 1, 0, 0)
       -- render characters
@@ -608,8 +600,6 @@ function GameState:draw()
   or self.state == STATE_ESCAPE_ENCOUNTER
   or self.state == STATE_DIED_ENCOUNTER
   or self.state == STATE_ENCOUNTER_INTRO) then
-    print(self.state) 
-    print(self.return_state_after_input)
 
     -- render background and enemy
     love.graphics.draw(self.encounter_background, 0, 0, 0, 1, 1, 0, 0)
