@@ -372,7 +372,7 @@ function GameState:update(dt)
   elseif self.state == STATE_CAMPFIRE then
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
-    -- TODO: check if it's over
+    
     if self.campfire_position == 17 then
       self.state = STATE_MOVING
       self.is_campfire = false
