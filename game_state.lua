@@ -18,7 +18,7 @@ local STATE_GET_NEXT_TEXT = 6
 local STATE_ESCAPE_ENCOUNTER = 7
 local STATE_DIED_ENCOUNTER = 8
 local STATE_ENCOUNTER_INTRO = 9
-
+local STATE_CAMPFIRE = 12
 -- Menu State
 local STATE_MAIN_MENU = 10
 local STATE_RESOLUTION_SELECT = 11
@@ -91,6 +91,11 @@ function GameState:_init(screen_width, screen_height)
     { w = 1600, h = 1200 },
     { w = 1920, h = 1440 }
   }
+  self.is_campfire = false
+  self.had_campfire = false
+  self.campfire_position = 0
+  self.campfire_background = love.graphics.newImage('data/background_campfire.png')
+
 end
 -- max chars on screen
 local max_lines = 5
@@ -175,8 +180,8 @@ function GameState:update(dt)
 
   elseif self.state == STATE_ENCOUNTER then
     -- enemy says a line
-    self.current_sfx = self.audio_manager:get_sound('text_scroll', .6, true)
-    self.current_sfx:play()
+    --self.current_sfx = self.audio_manager:get_sound('text_scroll', .6, true)
+    --self.current_sfx:play()
     self.current_text = self:wrap_text(self.enemy:say())
     self.current_talking_head = "enemy"
     self.prev_talking_head = "enemy"
@@ -234,37 +239,56 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
-    self.current_sfx:stop()
+   -- self.current_sfx:stop()
 
     -- render thought on initially selected character
     local get_thought_for_initial_character = self.current_character_thought == ""
     -- if the player pressed enter advance convo
-    if user_input_timer >= user_input_delay
-    or get_thought_for_initial_character then
-      if love.keyboard.isDown('s') or love.keyboard.isDown('w')
-      or get_thought_for_initial_character then
+    if user_input_timer >= user_input_delay or (get_thought_for_initial_character and not self.return_state_after_text == STATE_CAMPFIRE) then
+      if get_thought_for_initial_character and  not self.return_state_after_text == STATE_CAMPFIRE then
+        goto get_thought
+      end
+      -- go to next valid character
+      if love.keyboard.isDown('s') then
         user_input_timer = 0
-        -- go to next valid character
-        if not get_thought_for_initial_character then
-          if love.keyboard.isDown('s') then
-            self.current_character = (self.current_character % 3) + 1
-          else
-            self.current_character = ((self.current_character - 2) % 3) + 1
-          end
-        end
+        self.current_character = (self.current_character % 3) + 1
+      elseif love.keyboard.isDown('w') then
+        user_input_timer = 0          
+        self.current_character = ((self.current_character - 2) % 3) + 1
+      end
+      ::get_thought::
+      if self.is_campfire then
+          self.current_character_thought = ""
+      else
         if self.characters[self.current_character]:is_next_move_nil(self.current_benchmark, self.current_benchmark_position) then
           self.current_character_thought = "..."
         else
           self.current_character_thought = self.characters[self.current_character]:get_thought(self.current_benchmark, self.current_benchmark_position)
         end
+      end
 
-      elseif love.keyboard.isDown('space') then
+      if love.keyboard.isDown('space') then
         user_input_timer = 0
         -- the current character makes his move
         self.current_talking_head = self.current_character
         self.state = STATE_SHOWING_TEXT
         self.return_state_after_text = STATE_CHANGING_TRUST
+         
         local move = self.characters[self.current_character]:get_benchmark_move(self.current_benchmark, self.current_benchmark_position)
+        -- INPUT FOR CAMPFIRE
+        if self.is_campfire then
+            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)               
+          if move == nil then
+            self.current_text = "..."
+          else
+
+            self.current_text = self:wrap_text(move)
+            self.current_character_thought = ""
+          end
+          self.return_state_after_text = STATE_CAMPFIRE
+          goto end_enc_wait_for_input
+        end
+        move = self.characters[self.current_character]:get_benchmark_move(self.current_benchmark, self.current_benchmark_position)
         if self.characters[self.current_character]:is_stressed() then
           self.return_state_after_text = STATE_DIED_ENCOUNTER
           self.current_text = self:wrap_text(self.characters[self.current_character]:get_stressed_move().text)
@@ -286,13 +310,14 @@ function GameState:update(dt)
             self.characters[k]:decrease_stress()
           end
         end
-        self.current_sfx = self.audio_manager:get_sound('text_scroll', .6, true)
-        self.current_sfx:play()
+        ::end_enc_wait_for_input::
+        --self.current_sfx = self.audio_manager:get_sound('text_scroll', .6, true)
+        --self.current_sfx:play()
       end
     end
 
   elseif self.state == STATE_CHANGING_TRUST then
-    if not (self.trust_change_amount == 0)then
+    if not (self.trust_change_amount == 0) then
       local delta = 1
       if self.trust_change_amount > 0 then
         delta = -1
@@ -322,8 +347,9 @@ function GameState:update(dt)
         end
       end
     end
+
   elseif self.state == STATE_ESCAPE_ENCOUNTER
-  or self.state == STATE_DIED_ENCOUNTER then
+    or self.state == STATE_DIED_ENCOUNTER then
     -- enemy says encounter text
     if self.state == STATE_ESCAPE_ENCOUNTER then
       self.current_text = self:wrap_text(self.enemy.escape_text)
@@ -332,11 +358,29 @@ function GameState:update(dt)
     end
     self.current_talking_head = "enemy"
     self.state = STATE_SHOWING_TEXT
-    self.return_state_after_text = STATE_MOVING
+    if self.had_campfire then
+      self.return_state_after_text = STATE_MOVING
+    else
+      self.return_state_after_text = STATE_CAMPFIRE
+    end
     -- remove enemy from map
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
-    self.current_sfx:stop()
+    --self.current_sfx:stop()
+
+
+  elseif self.state == STATE_CAMPFIRE then
+    self.campfire_position = self.campfire_position + 1
+    self.is_campfire = true
+    
+    if self.campfire_position == 17 then
+      self.state = STATE_MOVING
+      self.is_campfire = false
+      self.had_campfire = true
+    else
+     self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
+     self.return_state_after_text = STATE_CAMPFIRE
+   end
   end
 end
 
@@ -505,6 +549,65 @@ function GameState:draw()
       love.graphics.print({{255,255,128}, "Press Enter to Skip..."}, 84, math.floor(sheight * .75), 0, 1, 1, 0, 0)
     end
 
+    -- CAMPFIRE
+  elseif self.is_campfire then
+      -- render campfire scene
+      love.graphics.draw(self.campfire_background, 0, 0, 0, 1, 1, 0, 0)
+      -- render characters
+      local cur_character = self.characters[self.current_character]
+      local bermund = self.characters[1]
+      local sheera = self.characters[2]
+      local holly = self.characters[3]
+      love.graphics.draw(bermund.campfire_image, bermund.campfire_x, bermund.campfire_y)
+      love.graphics.draw(sheera.campfire_image, sheera.campfire_x, sheera.campfire_y)
+      love.graphics.draw(holly.campfire_image, holly.campfire_x, holly.campfire_y)
+      -- render selector
+      if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
+        love.graphics.draw(self.selector, cur_character.campfire_x - 5,
+          cur_character.campfire_y + 20, 0, 1, 1, 0, 0)
+      end
+      -- render text
+      local string_to_render = self.current_text
+      string_to_render = string.sub(self.current_text, 0, self.current_text_to_display_idx)
+      if not (self.current_text == "") then
+        self.prev_text = string_to_render
+      end
+      if self.state == STATE_SHOWING_TEXT
+        or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
+        or self.state == STATE_GET_NEXT_TEXT
+        or self.state == STATE_CAMPFIRE then
+          local head = self.current_talking_head
+          if head == nil then
+            head = self.prev_talking_head
+          end
+
+          if not (head == nil) and (head == 1 or head == 2 or head == 3) then
+            love.graphics.draw(self.textbox, 320, 3, 0, 1, 1, 240, 0)
+            love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
+            love.graphics.print({{255, 255, 128}, self.prev_text},
+              198, math.floor(sheight * .04))
+          end
+      end
+
+      if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
+        for k,v in pairs(self.characters) do
+          local idea = self.new_idea
+          if (self.characters[k]:get_campfire_move(self.campfire_position)) == nil then
+            idea = self.old_idea
+          end
+          love.graphics.draw(idea, self.characters[k].campfire_x + 25,
+            self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
+        end
+      end
+    -- render 'next' modals
+    if self.state == STATE_GET_NEXT_TEXT
+    or (self.current_text_to_display_idx > 0
+      and self.current_text_to_display_idx == string.len(self.current_text)) then
+      local xposfactor = .15
+      love.graphics.draw(self.continue,
+      math.floor(swidth * xposfactor), 110, 0, 1, 1, 0, 0)
+    end
+
   elseif not(self.return_state_after_text == STATE_INTRO)
     and(self.state == STATE_ENCOUNTER
   or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
@@ -514,7 +617,7 @@ function GameState:draw()
   or self.state == STATE_ESCAPE_ENCOUNTER
   or self.state == STATE_DIED_ENCOUNTER
   or self.state == STATE_ENCOUNTER_INTRO) then
-    
+
     -- render background and enemy
     love.graphics.draw(self.encounter_background, 0, 0, 0, 1, 1, 0, 0)
     love.graphics.draw(self.enemy.image_encounter,
@@ -762,10 +865,34 @@ function GameState:initialize_characters(animation)
       }
     }
 
+    bermund.campfire =
+    {
+      "And they said I could never make it in the theatre.",
+      nil,
+      "You wound me! We survived, didn't we?",
+      nil,
+      "So, what's our next daring adventure?",
+      "Have you ladies heard about the new lord of the realm? Sounds like a real piece of work. Maybe there's profit to be had in... inconveniencing him.",
+      nil,
+      nil,
+      "I mean, we're not seriously considering taking this guy on, are we? We're just three assholes." ,
+      nil,
+      nil,
+      nil,
+      "All right, he's definitely the worst and we're doing something about it.",
+      nil,
+      "Something."
+
+    }
+    bermund.campfire_image = love.graphics.newImage('data/campfire_bermund.png')
+
   bermund.stressed_move =
   {
     text = "Please, my lord, tallest of the short ones! Oh, shit..."
   }
+  bermund.campfire_x = bermund.encounter_x + 30
+  bermund.campfire_y = bermund.encounter_y
+
   sheera = Character:new(nil,
   love.graphics.newImage('data/battle_sheera.png'),
   love.graphics.newImage('data/textbox_sheera.png'),
@@ -814,6 +941,28 @@ function GameState:initialize_characters(animation)
       text = "All right, I've had it. I'm done arguing with a dirty goblin. Let us leave or we'll kill you all!",
     }
 
+    sheera.campfire =
+    {
+        nil,
+        "You probably couldn't, unless the audience were all goblins.",
+        nil,
+        "That's fair, I suppose.",
+        "We didn't get much in terms of treasure, though. Seems like every crypt, dungeon, and ruin is occupied these days. If we're not careful, we might be out of a job. ",
+        nil,
+        "Easier said than done. He's a powerful political figure, he won't just let us kindly insert a knife into his chest." ,
+        "Perhaps we could start small...",
+        nil,
+        "Did you hear that he promotes his soldiers to generals based solely on their reputation for cruelty?",
+        "Or that his second-in-command actively burns arcane practitioners at the stake, and that he just doesn't care?",
+        "Or that he's executed his entire court twice over already?",
+        nil,
+        "...What CAN we do, though?",
+        nil
+    }
+    sheera.campfire_image = love.graphics.newImage('data/campfire_sheera.png')
+    sheera.campfire_x = sheera.encounter_x * 4.5
+    sheera.campfire_y = sheera.encounter_y
+
     holly = Character:new(nil,
     love.graphics.newImage('data/battle_holly.png'),
     love.graphics.newImage('data/textbox_holly.png'),
@@ -849,7 +998,7 @@ function GameState:initialize_characters(animation)
           thought = "A fight won't go the way you expect"
         }
       },
-      {
+      { 
         {
           text = "Well... we'd really appreciate it. Can't you spare us out of the goodness of your heart?",
           effect = -2,
@@ -862,6 +1011,27 @@ function GameState:initialize_characters(animation)
       text = "You monsters are all the same. You want me in your stomach? Fine, but my sword is going there first.",
     }
 
+    holly.campfire =
+    {
+        nil,
+        "I mean, I'm inclined to agree. There's overacting and then there's you.",
+        "Still though, I guess we're still alive, so... thanks.",
+        nil,
+        "So, what's next?",
+        "Every farmer and townsperson I talk to is upset with all the political nonsense going on these days. We're three strong, brave heroes. Maybe we could do some good!",
+        nil,
+        "No, of course not. Then someone else would've done it.",
+        nil,
+        "Did you hear about how he demands from farmers twice the food they can produce?",
+        "Or that he constantly declares that all Orcs are criminals?",
+        "Or that he told townsfolk who were asking for protection from monsters that they should just buy swords themselves?",
+        nil,
+        nil,
+        "Something."
+    }
+    holly.campfire_image = love.graphics.newImage('data/campfire_holly.png')
+    holly.campfire_x = holly.encounter_x + 60
+    holly.campfire_y = holly.encounter_y - 40
     self.characters[1] = bermund
     self.characters[2] = sheera
     self.characters[3] = holly
