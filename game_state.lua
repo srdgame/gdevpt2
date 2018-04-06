@@ -274,14 +274,13 @@ function GameState:update(dt)
         self.state = STATE_SHOWING_TEXT
         self.return_state_after_text = STATE_CHANGING_TRUST
          
-        local move = self.characters[self.current_character]:get_benchmark_move(self.current_benchmark, self.current_benchmark_position)
+        local move = ""
         -- INPUT FOR CAMPFIRE
         if self.is_campfire then
             move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)               
           if move == nil then
             self.current_text = "..."
           else
-
             self.current_text = self:wrap_text(move)
             self.current_character_thought = ""
           end
