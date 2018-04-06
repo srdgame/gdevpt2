@@ -106,10 +106,13 @@ local user_input_delay = .5
 local text_draw_timer = 0
 local text_draw_delay = .005
 
+local text_sound_timer = 0
+local text_sound_delay = .05
 function GameState:update(dt)
   -- update timers
   user_input_timer = user_input_timer + dt
   text_draw_timer  = text_draw_timer + dt
+  text_sound_timer = text_sound_timer + dt
   -- game state update
   if self.state == STATE_INTRO then
     if self.current_intro_char >= 3 then
@@ -120,8 +123,8 @@ function GameState:update(dt)
       self.state = STATE_SHOWING_TEXT
       self.return_state_after_text = STATE_INTRO
       self.current_text =  self:wrap_text(self.characters[self.current_intro_char].intro)
-
     end
+
   elseif self.state == STATE_MAIN_MENU then
     if user_input_timer >= user_input_delay then
       if love.keyboard.isDown('space') then
@@ -136,6 +139,7 @@ function GameState:update(dt)
         love.event.quit()
       end
     end
+
   elseif self.state == STATE_RESOLUTION_SELECT then
     if user_input_timer >= user_input_delay then
       local change_res = false
@@ -158,6 +162,7 @@ function GameState:update(dt)
         self:reset_character_encounter_positions()
       end
     end
+
   elseif self.state == STATE_ENCOUNTER_INTRO then
     self.state = STATE_SHOWING_TEXT
     self.return_state_after_text = STATE_ENCOUNTER
@@ -180,8 +185,6 @@ function GameState:update(dt)
 
   elseif self.state == STATE_ENCOUNTER then
     -- enemy says a line
-    --self.current_sfx = self.audio_manager:get_sound('text_scroll', .6, true)
-    --self.current_sfx:play()
     self.current_text = self:wrap_text(self.enemy:say())
     self.current_talking_head = "enemy"
     self.prev_talking_head = "enemy"
@@ -213,6 +216,14 @@ function GameState:update(dt)
           self.text_buffer  = string.sub(self.current_text, self.current_text_to_display_idx, cur_text_len)
           self.current_text = string.sub(self.current_text, 0, self.current_text_to_display_idx - 1)
           self.state = STATE_GET_NEXT_TEXT
+        else
+           -- play sound when we add another character
+          if (text_sound_timer >= text_sound_delay) then
+            text_sound_timer = 0
+            local sfx = love.audio.newSource('audio/char-text.wav')
+            sfx:setVolume(1)
+            sfx:play()
+          end
         end
         text_draw_timer = 0
       end
@@ -239,8 +250,6 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
-   -- self.current_sfx:stop()
-
     -- render thought on initially selected character
     local get_thought_for_initial_character = self.current_character_thought == ""
     -- if the player pressed enter advance convo
@@ -310,8 +319,6 @@ function GameState:update(dt)
           end
         end
         ::end_enc_wait_for_input::
-        --self.current_sfx = self.audio_manager:get_sound('text_scroll', .6, true)
-        --self.current_sfx:play()
       end
     end
 
@@ -365,8 +372,6 @@ function GameState:update(dt)
     -- remove enemy from map
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
-    --self.current_sfx:stop()
-
 
   elseif self.state == STATE_CAMPFIRE then
     self.campfire_position = self.campfire_position + 1
@@ -452,7 +457,6 @@ function GameState:animate_world_player(dt, direction)
 end
 
 function GameState:has_collided_on_map(map, character_x, character_y)
-
   -- check if hit wall on map
   for k,t in pairs(map.bump_collidables) do
     if self:has_collided(character_x, character_y, t.x, t.y, t.width, t.height) then
@@ -525,11 +529,10 @@ function GameState:draw()
     for k,v in pairs(self.resolutions) do
       love.graphics.print({{255,255,128}, k .. ")" .. " " .. v.w .. "x" .. v.h}, math.floor(swidth * .4), math.floor(sheight / 3) + (k * 20))
     end
+
   elseif self.state == STATE_INTRO or ((self.state == STATE_GET_NEXT_TEXT
     or self.state == STATE_SHOWING_TEXT)
     and self.return_state_after_text == STATE_INTRO) then
-
-
     -- print character name
     love.graphics.print({{255,255,128}, self.characters[self.current_intro_char].full_name}, math.floor(swidth * .36), 110)
     -- render character
@@ -615,7 +618,6 @@ function GameState:draw()
   or self.state == STATE_ESCAPE_ENCOUNTER
   or self.state == STATE_DIED_ENCOUNTER
   or self.state == STATE_ENCOUNTER_INTRO) then
-
     -- render background and enemy
     love.graphics.draw(self.encounter_background, 0, 0, 0, 1, 1, 0, 0)
     love.graphics.draw(self.enemy.image_encounter,
@@ -641,11 +643,11 @@ function GameState:draw()
     if not (self.current_text == "") then
       self.prev_text = string_to_render
     end
+
     if self.state == STATE_SHOWING_TEXT
       or self.state == STATE_CHANGING_TRUST
       or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
       or self.state == STATE_GET_NEXT_TEXT then
- 
 
       -- render textbox and talking head
         if self.current_talking_head == "narrator" then
@@ -728,13 +730,6 @@ function GameState:draw()
     local ty = math.floor(self.world_character.y - (sheight / 2) )
     love.graphics.translate(-tx, -ty)
     self.map:draw(-tx, -ty, scale_screen_width, scale_screen_height)
-
-
-    -- code to draw hitboxes on player and doors
-    --love.graphics.rectangle('line', self.world_character.x, self.world_character.y, 32, 32)
-    --for coords, door in pairs(self.doors) do
-    --  love.graphics.rectangle('line', coords.x, coords.y, 32, 32)
-    --end
 
     if self.did_move then
       self.world_character.animation[self.world_character.current_animation]:draw(
