@@ -48,7 +48,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_MAIN_MENU
+  self.state = STATE_MOVING
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -108,11 +108,16 @@ local text_draw_delay = .005
 
 local text_sound_timer = 0
 local text_sound_delay = .05
+
+local walk_sound_timer = 0
+local walk_sound_delay = .3
 function GameState:update(dt)
   -- update timers
   user_input_timer = user_input_timer + dt
   text_draw_timer  = text_draw_timer + dt
   text_sound_timer = text_sound_timer + dt
+  walk_sound_timer = walk_sound_timer + dt
+
   -- game state update
   if self.state == STATE_INTRO then
     if self.current_intro_char >= 3 then
@@ -374,6 +379,11 @@ function GameState:update(dt)
     self.enemy.image_world = "deleted"
 
   elseif self.state == STATE_CAMPFIRE then
+    if self.is_campfire == false then
+      self.current_song:stop()
+      self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
+      self.current_song:play()
+    end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
     
@@ -443,6 +453,15 @@ function GameState:update_move_player(dt)
     local new_x = self.world_character.x + (self.world_character.speed * dt)
     if not self:has_collided_on_map(self.map, new_x, self.world_character.y) then
       self.world_character.x = new_x
+    end
+  end
+
+  if did_move then
+    if walk_sound_timer >= walk_sound_delay then
+      walk_sound_timer = 0
+      local sfx = love.audio.newSource('audio/walk.wav')
+      sfx:setVolume(.5)
+      sfx:play()
     end
   end
   return did_move
