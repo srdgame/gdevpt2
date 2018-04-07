@@ -40,6 +40,25 @@ function Enemy:say()
   end
 end
 
+function Enemy:next_encounter()
+  -- switch up lines
+  self.trust = 0
+  self.intro = "Intro to 2nd encounter..."
+  self.current_line = 1
+  self.full_name = "Guard Captain"
+  self.lines = 
+    {
+      "Oy! You three! You're comin' with me!",
+      "Don't play dumb with me! Someone assassinated a prominent member of the lord's court in his sleep last night, and you three are the only other people on this floor.",
+      "Oh yeah? I can think of plenty of reasons that someone would hire you three for it. You kill monsters for a living, what makes killing a man any different?",
+      "Hmph. Even if there were somehow another assassin, completely unrelated to you three, who snuck in, killed a man, and escaped without anyone seeing them, I'll feel much more comfortable searching for them with you safely confined in a holding cell."
+  }
+  self.escape_text = "Fine. I'll forget I saw you. Get out of this town and don't make me regret this."
+  self.death_text = "Yeah, all right, you're coming with me. I don't care if you did it, someone's head is rolling for this, and it ain't gonna be mine."
+
+end
+
+
 function Enemy:change_trust(effect_amount)
   self.trust = self.trust + effect_amount
 end

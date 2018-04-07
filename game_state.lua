@@ -95,8 +95,8 @@ function GameState:_init(screen_width, screen_height)
   self.had_campfire = false
   self.campfire_position = 0
   self.campfire_background = love.graphics.newImage('data/background_campfire.png')
-
 end
+
 -- max chars on screen
 local max_lines = 5
 -- delay input for encounter
@@ -111,6 +111,7 @@ local text_sound_delay = .05
 
 local walk_sound_timer = 0
 local walk_sound_delay = .3
+
 function GameState:update(dt)
   -- update timers
   user_input_timer = user_input_timer + dt
@@ -789,6 +790,8 @@ function GameState:initialize_map(map, coords)
                         love.graphics.newImage('data/textbox_graadiabs.png'))
       self.enemy.x = object.x
       self.enemy.y = object.y
+      -- TODO remove this
+      self.enemy:next_encounter()
     end
     if object.name == 'door' then
       coords = {}
@@ -877,6 +880,17 @@ function GameState:initialize_characters(animation)
       }
     }
 
+    bermund.second_benchmarks = 
+    {
+      {
+        {
+          text = "Gentle sir, why? Have we commited any misconduct?",
+          effect = 1,
+          thought = "Why?"
+        }
+      }
+    }
+
     bermund.campfire =
     {
       "And they said I could never make it in the theatre.",
@@ -896,6 +910,7 @@ function GameState:initialize_characters(animation)
       "Something."
 
     }
+
     bermund.campfire_image = love.graphics.newImage('data/campfire_bermund.png')
 
   bermund.stressed_move =
@@ -948,6 +963,19 @@ function GameState:initialize_characters(animation)
         }
       }
     }
+
+    sheera.second_benchmarks = 
+    {
+      {
+        {
+          text = "Oh, bollocks-what do you want?",
+          effect = -3,
+          thought = "Ugh"
+        }
+      }
+    }
+
+
     sheera.stressed_move =
     {
       text = "All right, I've had it. I'm done arguing with a dirty goblin. Let us leave or we'll kill you all!",
@@ -1018,6 +1046,18 @@ function GameState:initialize_characters(animation)
         }
       }
     }
+
+    holly.second_benchmark = 
+    {
+      {
+        {
+          text = "Does someone need our help?",
+          effect = 2,
+          thought = "Need Help?"
+        }
+      }
+    }
+
     holly.stressed_move =
     {
       text = "You monsters are all the same. You want me in your stomach? Fine, but my sword is going there first.",
