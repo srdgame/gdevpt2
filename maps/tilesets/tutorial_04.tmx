@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="15" height="20" tilewidth="32" tileheight="32" infinite="0" nextobjectid="2">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="15" height="20" tilewidth="32" tileheight="32" nextobjectid="2">
  <tileset firstgid="1" source="tileset_dusty_v02.tsx"/>
  <tileset firstgid="41" source="tileset_temple_v01.tsx"/>
  <tileset firstgid="53" source="tileset_mining_v01.tsx"/>
@@ -53,11 +53,10 @@
  </layer>
  <objectgroup name="Object Layer 1" visible="0"/>
  <objectgroup name="enemy" visible="0">
-  <object id="1" name="enemy" x="224" y="160">
+  <object id="1" name="knight" x="224" y="160">
    <properties>
     <property name="collidable" type="int" value="0"/>
    </properties>
-   <point/>
   </object>
  </objectgroup>
  <layer name="walls" width="15" height="20" visible="0">

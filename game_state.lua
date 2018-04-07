@@ -379,6 +379,11 @@ function GameState:update(dt)
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
 
+    -- increment to next encounter
+    for k,v in pairs(self.characters) do
+        self.characters[k]:inc_encounter()
+    end
+
   elseif self.state == STATE_CAMPFIRE then
     if self.is_campfire == false then
       self.current_song:stop()
@@ -488,7 +493,7 @@ end
 
 function GameState:has_collided_on_enemy(map, character_x, character_y)
   for k, object in pairs(map.objects) do
-    if object.name == "enemy" then
+    if object.name == "enemy" or object.name == "knight" then
       if self:has_collided(character_x, character_y, object.x, object.y, 32, 32) then
         return true
       end
@@ -513,7 +518,7 @@ end
 
 function GameState:remove_enemy_from_map(map)
   for k, object in pairs(map.objects) do
-    if object.name == "enemy" then
+    if object.name == "enemy" or object.name == "knight" then
       -- this is totally a hack, but I couldn't figure out how to delete
       -- objects from maps otherwise. Setting map[k] = nil didn't do it
       -- since map.objects returns a list with different keys than the global map.
@@ -790,8 +795,17 @@ function GameState:initialize_map(map, coords)
                         love.graphics.newImage('data/textbox_graadiabs.png'))
       self.enemy.x = object.x
       self.enemy.y = object.y
+    end
+    if object.name == "knight" then
+      self.enemy = Enemy:new(love.graphics.newImage('data/dungeon_graadiabs.png'),
+                        love.graphics.newImage('data/battle_graadiabs.png'),
+                        love.graphics.newImage('data/textbox_graadiabs.png'))
+      self.enemy.x = object.x
+      self.enemy.y = object.y
       -- TODO remove this
+      pprint(object)
       self.enemy:next_encounter()
+
     end
     if object.name == 'door' then
       coords = {}
