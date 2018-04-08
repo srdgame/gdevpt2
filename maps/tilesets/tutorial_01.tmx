@@ -161,7 +161,6 @@
   <object id="1" name="character" x="384" y="288" visible="0"/>
  </objectgroup>
  <objectgroup name="objects">
-  <object id="10" name="barrel" x="530" y="250"/>
-  <object id="11" x="263" y="142"/>
+  <object id="10" name="barrel" x="520" y="240"/>
  </objectgroup>
 </map>

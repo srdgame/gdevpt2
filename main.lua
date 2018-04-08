@@ -43,7 +43,4 @@ end
 -- Render
 function love.draw()
   game_state:draw()
-  -- uncomment to draw hitboxes
-  -- love.graphics.setColor(255, 0, 0)
-	-- map:box2d_draw()
 end

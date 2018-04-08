@@ -49,7 +49,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_MOVING
+  self.state = STATE_MAIN_MENU
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -517,8 +517,13 @@ function GameState:has_collided_on_enemy(map, character_x, character_y)
 end
 
 function GameState:handle_object_collision()
+  local wx = self.world_character.x
+  local wy = self.world_character.y
   for k,v in pairs(self.objects) do
-    if self:has_collided(self.world_character.x - 2, self.world_character.y - 2, v.x, v.y, 34, 34) then
+    if not (wx > (v.x - 8) + 32 or
+        (v.x - 8) > wx + 32 or
+        wy > v.y + 30 or
+        v.y > wy + 30) then
       return v.text
     end
   end
@@ -526,8 +531,8 @@ function GameState:handle_object_collision()
 end
 
 function GameState:handle_door_collision()
-  wx = self.world_character.x
-  wy = self.world_character.y
+  local wx = self.world_character.x
+  local wy = self.world_character.y
   for coords, map in pairs(self.doors) do
     if not (wx > coords.x + 32 or
         coords.x > wx + 32 or
@@ -793,6 +798,7 @@ function GameState:draw()
         love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
     end
     if self.showing_text_in_world then
+      love.graphics.translate(tx, ty)
        --render text to screen
       local string_to_render = self.current_text
       string_to_render = string.sub(self.current_text, 0, self.current_text_to_display_idx)
@@ -800,13 +806,14 @@ function GameState:draw()
         self.prev_text = string_to_render
       end
       -- render textbox blnk
-        love.graphics.draw(self.text_box_blank, 320, 360, 0, 1, 1, 0, 0)
-        love.graphics.print({{255,255,128}, self.prev_text}, 330, 360)
+        love.graphics.draw(self.text_box_blank, math.floor(swidth  * .14), math.floor(sheight * .7), 0, 1, 1, 0, 0)
+        love.graphics.print({{255,255,128}, self.prev_text}, math.floor(swidth * .18), math.floor(sheight * .73))
       -- render 'next' modals
       if self.state == STATE_GET_NEXT_TEXT
       or (self.current_text_to_display_idx == string.len(self.current_text)) then
-        love.graphics.draw(self.continue, 770, 455, 0, 1, 1, 0, 0)
+        love.graphics.draw(self.continue, math.floor(swidth * .83), math.floor(sheight * .9), 0, 1, 1, 0, 0)
       end
+      love.graphics.translate(-tx, -ty)
     end
   end
 end
