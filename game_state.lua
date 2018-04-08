@@ -799,15 +799,13 @@ function GameState:draw()
       if not (self.current_text == "") then
         self.prev_text = string_to_render
       end
-      print(self.prev_text)
       -- render textbox blnk
-      love.graphics.draw(self.text_box_blank, 320, 370, 0, 1, 1, 0, 0)
-      love.graphics.print({{255,255,128}, self.prev_text}, 320, 390)
+        love.graphics.draw(self.text_box_blank, 320, 360, 0, 1, 1, 0, 0)
+        love.graphics.print({{255,255,128}, self.prev_text}, 330, 360)
       -- render 'next' modals
       if self.state == STATE_GET_NEXT_TEXT
-      or (self.current_text_to_display_idx > 0
-        and self.current_text_to_display_idx == string.len(self.current_text)) then
-        love.graphics.draw(self.continue, 320, 400, 1, 1, 0, 0)
+      or (self.current_text_to_display_idx == string.len(self.current_text)) then
+        love.graphics.draw(self.continue, 770, 455, 0, 1, 1, 0, 0)
       end
     end
   end
