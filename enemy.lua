@@ -43,7 +43,7 @@ end
 function Enemy:next_encounter()
   -- switch up lines
   self.trust = 0
-  self.intro = "Intro to 2nd encounter..."
+  self.intro = "The party spends the day travelling to a nearby town in a comfortable silence, infrequently broken by idle conversation. Finally, in the early evening, they reach an inn and decide to stay for the night."
   self.current_line = 1
   self.full_name = "Guard Captain"
   self.lines = 
