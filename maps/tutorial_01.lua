@@ -1,14 +1,14 @@
 return {
   version = "1.1",
   luaversion = "5.1",
-  tiledversion = "1.1.2",
+  tiledversion = "0.17.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 50,
   height = 20,
   tilewidth = 32,
   tileheight = 32,
-  nextobjectid = 4,
+  nextobjectid = 12,
   properties = {},
   tilesets = {
     {
@@ -25,11 +25,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {
@@ -135,11 +130,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {},
@@ -607,13 +597,38 @@ return {
           id = 1,
           name = "character",
           type = "",
-          shape = "point",
+          shape = "rectangle",
           x = 384,
           y = 288,
           width = 0,
           height = 0,
           rotation = 0,
           visible = false,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      name = "objects",
+      visible = true,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      draworder = "topdown",
+      properties = {},
+      objects = {
+        {
+          id = 10,
+          name = "barrel",
+          type = "",
+          shape = "rectangle",
+          x = 520,
+          y = 240,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
           properties = {}
         }
       }
