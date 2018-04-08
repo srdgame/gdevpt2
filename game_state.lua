@@ -802,8 +802,6 @@ function GameState:initialize_map(map, coords)
                         love.graphics.newImage('data/textbox_graadiabs.png'))
       self.enemy.x = object.x
       self.enemy.y = object.y
-      -- TODO remove this
-      pprint(object)
       self.enemy:next_encounter()
 
     end
@@ -902,6 +900,28 @@ function GameState:initialize_characters(animation)
           effect = 1,
           thought = "Why?"
         }
+      },
+      {
+        {
+          text = "Oh, that's simply dreadful! But sir, please, this assassination couldn't have been committed by lowly adventurers such as we. We're brand-new to the profession, and don't really have any experience killing, especially not of noblemen.",
+          effect = -3,
+          thought = "We're not powerful enough"
+        }
+      },
+      {
+        {
+          text = "Please, sir, there's simply no way that simple adventurers such as ourselves could commit such a vile act. It is beyond our capabilities!",
+          effect = 1,
+          thought = "This couldn't have been us"
+        }
+      },
+
+      {
+        {
+          text = "While I certainly respect the authority held by your illustrious office, sir, is such detainment really necessary? My companions and I are merely passing through, and I assure you that if you let us go now, you won't hear from us ever again.",
+          effect = -3,
+          thought = "You won't ever hear from us if you let us go"
+        }
       }
     }
 
@@ -986,6 +1006,27 @@ function GameState:initialize_characters(animation)
           effect = -3,
           thought = "Ugh"
         }
+      },
+      {
+        {
+          text = "That's rather unfortunate, Captain, but we've just arrived in town. What motivation could we possibly have to murder some man we have never met in a town we haven't visited? You can ask the inkeeper downstairs, she'll attest that we haven't been seen in town before.",
+          effect = 5,
+          thought = "We're new in town"
+        }
+      },
+      {
+        {
+          text = "With all due respect, sir, do I truly look like someone who is in such a dire need of gold that I would resort to murder for it? I adventure simply for the excitement, and I assure you, my coffers are quite full.",
+          effect = -3,
+          thought = "Do I look like I need the money?"
+        }
+      },
+      {
+        {
+          text = "Well, you certainly could, if you like. You could chain us up, drag us across town, file the necessary paperwork to keep us detained, relieve my dear, sneaky companion here of all of his hidden lockpicks, find some way to effectively prevent me, an arcane practitioner, from opening the cell with magic, feed us for however many days it takes you to find the real killer, and then appropriately release and pardon us when you do. But that doesn't sound like the most effective use of your time when there's a royal assassin to catch, no?",
+          effect = 7,
+          thought = "That's a waste of your time"
+        }
       }
     }
 
@@ -1061,13 +1102,34 @@ function GameState:initialize_characters(animation)
       }
     }
 
-    holly.second_benchmark = 
+    holly.second_benchmarks = 
     {
       {
         {
           text = "Does someone need our help?",
           effect = 2,
           thought = "Need Help?"
+        }
+      },
+      {
+        {
+          text = "We're not assassins. I've never had any reason to fight another human, but I assure you that if I did, I would face them honorably. I'm very sorry to hear that a man was murdered, but it was not by our hand. My companions and I would be happy to help you find the real killer.",
+          effect = 1,
+          thought = "We're not assassins"
+        }
+      },
+      {
+        {
+          text = "It's completely different! I became an adventurer because I wanted to help people, to save people. Look me in the eyes and tell me if you see a murderer.",
+          effect = 5,
+          thought = "It's completely different"
+        }
+      },
+      {
+        {
+          text = "Look, we would've happily helped you if you'd let us We help people, that's what we do. But the fact that we're standing here, talking to you at all, pretty clearly shows that we didn't do this. The lord is no friend of ours, either, so if you don't want our help, then we'll be on our way.",
+          effect = 3,
+          thought = "Bad idea"
         }
       }
     }
