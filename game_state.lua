@@ -1,5 +1,6 @@
 local Character = require('character')
 local Enemy = require('enemy')
+local Object = require('object')
 local LevelManager = require('level_manager')
 local AudioManager = require('audio_manager')
 local bump = require("deps/bump/bump")
@@ -48,7 +49,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_MAIN_MENU
+  self.state = STATE_MOVING
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -96,6 +97,8 @@ function GameState:_init(screen_width, screen_height)
   self.campfire_position = 0
   self.campfire_background = love.graphics.newImage('data/background_campfire.png')
 
+  self.objects = {}
+  self.showing_text_in_world = false
 end
 -- max chars on screen
 local max_lines = 5
@@ -175,19 +178,33 @@ function GameState:update(dt)
     self.current_talking_head = "narrator"
     self.prev_talking_head = "narrator"
 
+  -- MOVING
   elseif self.state == STATE_MOVING then
     self.did_move = false
+    self.showing_text_in_world = false
     -- check if player hit a door
     self:handle_door_collision()
-    -- check if the world character collided with an enemy
-    if self:has_collided_on_enemy(self.map, self.world_character.x, self.world_character.y) then
-      -- start encounter, reset current benchmark
-      self.state = STATE_ENCOUNTER_INTRO
-      self.current_benchmark = 1
-    else
-      self.did_move = self:update_move_player(dt)
+    -- check if player hit an object
+    local txt = self:handle_object_collision()
+    if not (txt == nil) then
+      -- display text on space
+      if user_input_timer >= user_input_delay
+        and love.keyboard.isDown('space') then
+        self.showing_text_in_world = true
+        self.state = STATE_SHOWING_TEXT
+        self.return_state_after_text = STATE_MOVING
+        self.current_text = self:wrap_text(txt)
+        return
+      end
     end
-
+      -- check if the world character collided with an enemy
+      if self:has_collided_on_enemy(self.map, self.world_character.x, self.world_character.y) then
+        -- start encounter, reset current benchmark
+        self.state = STATE_ENCOUNTER_INTRO
+        self.current_benchmark = 1
+      else
+        self.did_move = self:update_move_player(dt)
+      end
   elseif self.state == STATE_ENCOUNTER then
     -- enemy says a line
     self.current_text = self:wrap_text(self.enemy:say())
@@ -209,6 +226,9 @@ function GameState:update(dt)
           self.current_text_to_display_idx = 0
           self.prev_talking_head = self.current_talking_head
           self.current_talking_head = nil
+          if (self.showing_text_in_world) then
+            self.showing_text_in_world = false
+          end
         end
       end
     else
@@ -496,6 +516,15 @@ function GameState:has_collided_on_enemy(map, character_x, character_y)
   return false
 end
 
+function GameState:handle_object_collision()
+  for k,v in pairs(self.objects) do
+    if self:has_collided(self.world_character.x - 2, self.world_character.y - 2, v.x, v.y, 34, 34) then
+      return v.text
+    end
+  end
+  return nil
+end
+
 function GameState:handle_door_collision()
   wx = self.world_character.x
   wy = self.world_character.y
@@ -636,7 +665,8 @@ function GameState:draw()
   or self.state == STATE_CHANGING_TRUST
   or self.state == STATE_ESCAPE_ENCOUNTER
   or self.state == STATE_DIED_ENCOUNTER
-  or self.state == STATE_ENCOUNTER_INTRO) then
+  or self.state == STATE_ENCOUNTER_INTRO)
+  and (not self.showing_text_in_world) then
     -- render background and enemy
     love.graphics.draw(self.encounter_background, 0, 0, 0, 1, 1, 0, 0)
     love.graphics.draw(self.enemy.image_encounter,
@@ -762,12 +792,31 @@ function GameState:draw()
        not (self.enemy.image_world == "deleted") then
         love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
     end
+    if self.showing_text_in_world then
+       --render text to screen
+      local string_to_render = self.current_text
+      string_to_render = string.sub(self.current_text, 0, self.current_text_to_display_idx)
+      if not (self.current_text == "") then
+        self.prev_text = string_to_render
+      end
+      print(self.prev_text)
+      -- render textbox blnk
+      love.graphics.draw(self.text_box_blank, 320, 370, 0, 1, 1, 0, 0)
+      love.graphics.print({{255,255,128}, self.prev_text}, 320, 390)
+      -- render 'next' modals
+      if self.state == STATE_GET_NEXT_TEXT
+      or (self.current_text_to_display_idx > 0
+        and self.current_text_to_display_idx == string.len(self.current_text)) then
+        love.graphics.draw(self.continue, 320, 400, 1, 1, 0, 0)
+      end
+    end
   end
 end
 
 function GameState:initialize_map(map, coords)
   self.enemy = {}
   self.doors = {}
+  self.objects = {}
   self.map = self.level_manager:get_level(map)
   local world = bump.newWorld(32)
   self.map:bump_init(world)
@@ -799,6 +848,12 @@ function GameState:initialize_map(map, coords)
       target.y = object.properties.target_y
       coords.target = target
       self.doors[coords] = object.type
+    end
+    if object.name == 'barrel' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It's a sturdy old mining barrel. There is a single copper piece on the lid, covered in mold. Picking that up doesn't seem worth it."))
+    end
+    if object.name == 'pickaxe' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The classic iron pickaxe. It appears that its previous owner abandoned it in a hurry. Perhaps they only needed it to obtain materials to create a better pickaxe."))
     end
   end
 end
