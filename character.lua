@@ -65,7 +65,11 @@ function Character:get_stressed_move()
 end
 
 function Character:get_thought(benchmark_number, benchmark_position)
-  return (self.benchmarks[benchmark_number][benchmark_position]).thought
+  local bench = self.benchmarks[benchmark_number][benchmark_position]
+  if bench == nil then
+    return nil
+  end
+  return bench.thought
 end
 
 function Character:get_benchmark_move(benchmark_number, benchmark_position)

@@ -76,6 +76,7 @@ function GameState:_init(screen_width, screen_height)
   }
   self.new_idea = love.graphics.newImage('data/ui_new_idea.png')
   self.old_idea = love.graphics.newImage('data/ui_old_idea.png')
+  self.no_idea = love.graphics.newImage('data/ui_no_idea.png')
   self.audio_manager = AudioManager:new()
   self.current_song = self.audio_manager:get_sound('bgm', .3, true)
   self.current_song:play()
@@ -619,10 +620,11 @@ function GameState:draw()
       if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
         for k,v in pairs(self.characters) do
           local idea = self.new_idea
-          if (self.characters[k]:get_campfire_move(self.campfire_position)) then
+          if (self.characters[k]:get_campfire_move(self.campfire_position))  == nil then
+           idea = self.no_idea 
+          end
             love.graphics.draw(idea, self.characters[k].campfire_x + 25,
               self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
-          end
         end
       end
     -- render 'next' modals
@@ -726,8 +728,11 @@ function GameState:draw()
         if thought == nil
           or string.len(thought) == 0
           or thought == "..." then
+          idea = self.no_idea
+        elseif thought == self.characters[k]:get_thought(self.current_benchmark, self.current_benchmark_position - 1) then
           idea = self.old_idea
         end
+
         love.graphics.draw(idea, self.characters[k].encounter_x + 25,
         self.characters[k].encounter_y - 10, 0, 1, 1, 0, 0)
       end
