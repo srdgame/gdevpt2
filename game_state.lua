@@ -415,6 +415,9 @@ function GameState:update(dt)
       self.state = STATE_MOVING
       self.is_campfire = false
       self.had_campfire = true
+      self.current_song:stop()
+      self.current_song = self.audio_manager:get_sound("forest", 1, true)
+      self.current_song:play()
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
