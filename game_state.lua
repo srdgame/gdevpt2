@@ -889,6 +889,33 @@ function GameState:initialize_map(map, coords)
     if object.name == 'pickaxe' then
       table.insert(self.objects, Object:new(object.x, object.y, "The classic iron pickaxe. It appears that its previous owner abandoned it in a hurry. Perhaps they only needed it to obtain materials to create a better pickaxe."))
     end
+    if object.name == 'crate' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It doesn't seem like it's ever been opened. Knocking on it produces a hollow sound. Maybe it was just used as decoration, and never actually held anything."))
+    end
+    if object.name == 'tnt_box' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Explosives, for when regular mining just isn't dangerous enough. A close inspection reveals a small buildup of something crystalline on the wrappers. Perhaps someone less sane would see that as an opportunity, but you are not that person."))
+    end
+    if object.name == 'minecart_empty' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It seems to be made of ancient, well-rusted iron. All but one of its wheels have fused to their housing."))
+    end
+    if object.name == 'minecart_grey' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It's almost completely full of gravel. It appears that some genius overfilled it and then couldn't get it to move because it was too heavy."))
+      end
+    if object.name == 'minecart_brown' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It appears that whoever has already explored this place decided that this pile of rocks wasn't worth looting, or even taking the time to walk all the way up to it and inspect it. And yet here you are. Go figure."))
+    end
+    if object.name == 'door_board' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Seems like it was boarded up long ago. Looking through the barrier, you can tell that the shaft beyond has caved in. Never have you been more certain that you cannot explore an area."))
+    end
+    if object.name == 'lamppost' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Sheera declares that this lamppost is arcane in nature. According to her, it's 'beginner's work,' but she's never made anything like it before, so maybe she's not being entirely honest."))
+    end
+    if object.name == 'open_chest' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Whoever looted this chest beforehand seemed so excited about its contents that they also stole its lid. Perhaps they had a chest already, but needed a lid."))
+    end
+    if object.name == 'open_chest_deb' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The lock on this chest is actually still intact, but a steel lock can only do so much to protect a wooden chest from someone with an axe and enough determination."))
+    end
   end
 end
 
