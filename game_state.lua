@@ -836,8 +836,10 @@ function GameState:initialize_map(map, coords)
   local world = bump.newWorld(32)
   self.map:bump_init(world)
   self.world = world
-  if (string.find(map, 'tutorial_') and not (map == 'tutorial_04')) then
+  if (string.find(map, 'tutorial_')) then
     self.visual_fx = love.graphics.newImage('data/vignette.png')
+  else
+    self.visual_fx = nil
   end
   if coords then
     self.world_character.x = tonumber(coords.x)
