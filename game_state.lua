@@ -99,6 +99,8 @@ function GameState:_init(screen_width, screen_height)
 
   self.objects = {}
   self.showing_text_in_world = false
+
+  self.visual_fx = nil
 end
 -- max chars on screen
 local max_lines = 5
@@ -799,6 +801,10 @@ function GameState:draw()
        not (self.enemy.image_world == "deleted") then
         love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
     end
+    --draw visual effect
+    if self.visual_fx then
+      love.graphics.draw(self.visual_fx, tx, ty, 0, 1, 1, 0, 0)
+    end
     if self.showing_text_in_world then
       love.graphics.translate(tx, ty)
        --render text to screen
@@ -817,6 +823,8 @@ function GameState:draw()
       end
       love.graphics.translate(-tx, -ty)
     end
+
+
   end
 end
 
@@ -828,7 +836,9 @@ function GameState:initialize_map(map, coords)
   local world = bump.newWorld(32)
   self.map:bump_init(world)
   self.world = world
-
+  if (string.find(map, 'tutorial_') and not (map == 'tutorial_04')) then
+    self.visual_fx = love.graphics.newImage('data/vignette.png')
+  end
   if coords then
     self.world_character.x = tonumber(coords.x)
     self.world_character.y = tonumber(coords.y)
