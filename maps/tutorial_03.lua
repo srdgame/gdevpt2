@@ -1,14 +1,14 @@
 return {
   version = "1.1",
   luaversion = "5.1",
-  tiledversion = "0.17.0",
+  tiledversion = "1.1.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 31,
   height = 36,
   tilewidth = 32,
   tileheight = 32,
-  nextobjectid = 4,
+  nextobjectid = 3,
   properties = {},
   tilesets = {
     {
@@ -25,6 +25,11 @@ return {
       tileoffset = {
         x = 0,
         y = 0
+      },
+      grid = {
+        orientation = "orthogonal",
+        width = 32,
+        height = 32
       },
       properties = {},
       terrains = {
@@ -130,6 +135,11 @@ return {
       tileoffset = {
         x = 0,
         y = 0
+      },
+      grid = {
+        orientation = "orthogonal",
+        width = 32,
+        height = 32
       },
       properties = {},
       terrains = {},
@@ -349,6 +359,11 @@ return {
       tileoffset = {
         x = 0,
         y = 0
+      },
+      grid = {
+        orientation = "orthogonal",
+        width = 32,
+        height = 32
       },
       properties = {},
       terrains = {},
@@ -607,33 +622,6 @@ return {
           properties = {
             ["target_x"] = 224,
             ["target_y"] = 480
-          }
-        }
-      }
-    },
-    {
-      type = "objectgroup",
-      name = "enemy",
-      visible = true,
-      opacity = 1,
-      offsetx = 0,
-      offsety = 0,
-      draworder = "topdown",
-      properties = {},
-      objects = {
-        {
-          id = 3,
-          name = "enemy",
-          type = "",
-          shape = "rectangle",
-          x = 665,
-          y = 212,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["collidable"] = false
           }
         }
       }

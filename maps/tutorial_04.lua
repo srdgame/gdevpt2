@@ -1,7 +1,7 @@
 return {
   version = "1.1",
   luaversion = "5.1",
-  tiledversion = "0.17.0",
+  tiledversion = "1.1.2",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 15,
@@ -25,6 +25,11 @@ return {
       tileoffset = {
         x = 0,
         y = 0
+      },
+      grid = {
+        orientation = "orthogonal",
+        width = 32,
+        height = 32
       },
       properties = {},
       terrains = {
@@ -131,6 +136,11 @@ return {
         x = 0,
         y = 0
       },
+      grid = {
+        orientation = "orthogonal",
+        width = 32,
+        height = 32
+      },
       properties = {},
       terrains = {},
       tilecount = 12,
@@ -151,12 +161,20 @@ return {
         x = 0,
         y = 0
       },
+      grid = {
+        orientation = "orthogonal",
+        width = 32,
+        height = 32
+      },
       properties = {},
       terrains = {},
       tilecount = 15,
       tiles = {
         {
           id = 0,
+          properties = {
+            ["collidable"] = true
+          },
           objectGroup = {
             type = "objectgroup",
             name = "",
@@ -187,6 +205,9 @@ return {
         },
         {
           id = 5,
+          properties = {
+            ["collidable"] = true
+          },
           objectGroup = {
             type = "objectgroup",
             name = "",
@@ -215,6 +236,9 @@ return {
         },
         {
           id = 6,
+          properties = {
+            ["collidable"] = true
+          },
           objectGroup = {
             type = "objectgroup",
             name = "",
@@ -243,6 +267,9 @@ return {
         },
         {
           id = 7,
+          properties = {
+            ["collidable"] = true
+          },
           objectGroup = {
             type = "objectgroup",
             name = "",
@@ -271,6 +298,9 @@ return {
         },
         {
           id = 8,
+          properties = {
+            ["collidable"] = true
+          },
           objectGroup = {
             type = "objectgroup",
             name = "",
@@ -299,6 +329,9 @@ return {
         },
         {
           id = 12,
+          properties = {
+            ["collidable"] = true
+          },
           objectGroup = {
             type = "objectgroup",
             name = "",
@@ -327,6 +360,9 @@ return {
         },
         {
           id = 13,
+          properties = {
+            ["collidable"] = true
+          },
           objectGroup = {
             type = "objectgroup",
             name = "",
@@ -452,9 +488,9 @@ return {
       objects = {
         {
           id = 1,
-          name = "knight",
+          name = "enemy",
           type = "",
-          shape = "rectangle",
+          shape = "point",
           x = 224,
           y = 160,
           width = 0,
