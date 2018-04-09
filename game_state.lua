@@ -116,12 +116,48 @@ local text_sound_delay = .05
 
 local walk_sound_timer = 0
 local walk_sound_delay = .3
+
+local fade_out_timer = 0
+local fade_out_delay = .08
+local fade_out_index = 1
+local is_fading_out = 1
+local fade_images = {
+  love.graphics.newImage('data/1.png'),
+  love.graphics.newImage('data/2.png'),
+  love.graphics.newImage('data/3.png'),
+  love.graphics.newImage('data/4.png'),
+  love.graphics.newImage('data/5.png'),
+  love.graphics.newImage('data/6.png'),
+  love.graphics.newImage('data/7.png'),
+  love.graphics.newImage('data/8.png'),
+  love.graphics.newImage('data/9.png'),
+  love.graphics.newImage('data/10.png')
+}
+
 function GameState:update(dt)
   -- update timers
   user_input_timer = user_input_timer + dt
   text_draw_timer  = text_draw_timer + dt
   text_sound_timer = text_sound_timer + dt
   walk_sound_timer = walk_sound_timer + dt
+  fade_out_timer = fade_out_timer + dt
+
+  if (fade_out_timer >= fade_out_delay) then
+    pprint(fade_out_index)
+    pprint(fade_images[fade_out_index])
+    fade_out_timer = 0
+    if (is_fading_out) then
+      fade_out_index = fade_out_index + 1
+      if (fade_out_index == 10) then
+        is_fading_out = false
+      end
+    else
+      fade_out_index = fade_out_index - 1
+      if (fade_out_index == 1) then
+        is_fading_out = true
+      end
+    end
+  end
 
   -- game state update
   if self.state == STATE_INTRO then
@@ -575,6 +611,8 @@ function GameState:draw()
 
   if self.state == STATE_MAIN_MENU then
     love.graphics.draw(self.title_card, 0, 0)
+
+    love.graphics.draw(fade_images[fade_out_index], 0, 0)
 
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
