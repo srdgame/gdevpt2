@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="27" height="29" tilewidth="32" tileheight="32" infinite="0" nextobjectid="14">
+<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="27" height="29" tilewidth="32" tileheight="32" infinite="0" nextobjectid="64">
  <tileset firstgid="1" source="tileset_dusty_v02.tsx"/>
  <tileset firstgid="41" source="tileset_temple_v01.tsx"/>
  <tileset firstgid="53" source="tileset_mining_v01.tsx"/>
@@ -69,7 +69,18 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="objects"/>
+ <objectgroup name="objects" visible="0">
+  <object id="54" name="lamppost" x="395.47" y="678.03" width="9.33333" height="14.6667"/>
+  <object id="55" name="lamppost" x="459.47" y="679.364" width="9.33333" height="14.6667"/>
+  <object id="56" name="lamppost" x="516.667" y="330.666" width="17" height="8.33333"/>
+  <object id="57" name="lamppost" x="330.333" y="331" width="17" height="8.33333"/>
+  <object id="58" name="lamppost" x="395" y="232.667" width="9.33333" height="14.6667"/>
+  <object id="59" name="lamppost" x="459" y="234" width="9.33333" height="14.6667"/>
+  <object id="60" name="lamppost" x="459" y="234" width="9.33333" height="14.6667"/>
+  <object id="61" name="door_board" x="416.5" y="672.5" width="30.5" height="25.5"/>
+  <object id="62" name="open_chest_deb" x="373.002" y="262.295" width="21.9413" height="13.0603"/>
+  <object id="63" name="open_chest_deb" x="358.667" y="373.666" width="14.6667" height="20"/>
+ </objectgroup>
  <objectgroup name="enemy" visible="0">
   <object id="1" name="enemy" x="416" y="320">
    <properties>
@@ -77,16 +88,6 @@
    </properties>
    <point/>
   </object>
-  <object id="2" name="open_chest_deb" x="358.667" y="374.667" width="14.6667" height="20"/>
-  <object id="3" name="open_chest_deb" x="373.002" y="263.295" width="21.9413" height="13.0603"/>
-  <object id="4" name="door_board" x="416.5" y="673.5" width="30.5" height="25.5"/>
-  <object id="5" name="lamppost" x="459" y="235" width="9.33333" height="14.6667"/>
-  <object id="6" name="lamppost" x="459" y="235" width="9.33333" height="14.6667"/>
-  <object id="9" name="lamppost" x="395" y="233.667" width="9.33333" height="14.6667"/>
-  <object id="10" name="lamppost" x="330.333" y="332" width="17" height="8.33333"/>
-  <object id="11" name="lamppost" x="516.667" y="331.667" width="17" height="8.33333"/>
-  <object id="12" name="lamppost" x="459.47" y="680.364" width="9.33333" height="14.6667"/>
-  <object id="13" name="lamppost" x="395.47" y="679.03" width="9.33333" height="14.6667"/>
  </objectgroup>
  <layer name="walls" width="27" height="29" visible="0">
   <properties>
