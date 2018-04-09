@@ -99,6 +99,8 @@ function GameState:_init(screen_width, screen_height)
 
   self.objects = {}
   self.showing_text_in_world = false
+
+  self.visual_fx = nil
 end
 -- max chars on screen
 local max_lines = 5
@@ -403,6 +405,8 @@ function GameState:update(dt)
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
+      -- set map to forest
+      self:initialize_map('forest_01')      
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
@@ -797,6 +801,10 @@ function GameState:draw()
        not (self.enemy.image_world == "deleted") then
         love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
     end
+    --draw visual effect
+    if self.visual_fx then
+      love.graphics.draw(self.visual_fx, tx, ty, 0, 1, 1, 0, 0)
+    end
     if self.showing_text_in_world then
       love.graphics.translate(tx, ty)
        --render text to screen
@@ -815,6 +823,8 @@ function GameState:draw()
       end
       love.graphics.translate(-tx, -ty)
     end
+
+
   end
 end
 
@@ -826,7 +836,11 @@ function GameState:initialize_map(map, coords)
   local world = bump.newWorld(32)
   self.map:bump_init(world)
   self.world = world
-
+  if (string.find(map, 'tutorial_')) then
+    self.visual_fx = love.graphics.newImage('data/vignette.png')
+  else
+    self.visual_fx = nil
+  end
   if coords then
     self.world_character.x = tonumber(coords.x)
     self.world_character.y = tonumber(coords.y)
