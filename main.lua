@@ -10,8 +10,8 @@ function love.conf(t)
 end
 
 function love.load()
-  local screen_width = 1600
-  local screen_height = 900
+  local screen_width = 640
+  local screen_height = 480
   love.window.setMode(screen_width, screen_height)
   game_state = GameState:new(screen_width, screen_height)
 
@@ -43,7 +43,4 @@ end
 -- Render
 function love.draw()
   game_state:draw()
-  -- uncomment to draw hitboxes
-  -- love.graphics.setColor(255, 0, 0)
-	-- map:box2d_draw()
 end
