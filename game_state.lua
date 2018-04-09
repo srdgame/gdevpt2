@@ -165,7 +165,7 @@ function GameState:update(dt)
           goto change_res -- no break statement!
         end
       end
-      
+
       ::change_res::
       if change_res then
         love.window.setMode(self.screen_width, self.screen_height)
@@ -289,7 +289,7 @@ function GameState:update(dt)
         user_input_timer = 0
         self.current_character = (self.current_character % 3) + 1
       elseif love.keyboard.isDown('w') then
-        user_input_timer = 0          
+        user_input_timer = 0
         self.current_character = ((self.current_character - 2) % 3) + 1
       end
       ::get_thought::
@@ -309,11 +309,11 @@ function GameState:update(dt)
         self.current_talking_head = self.current_character
         self.state = STATE_SHOWING_TEXT
         self.return_state_after_text = STATE_CHANGING_TRUST
-         
+
         local move = ""
         -- INPUT FOR CAMPFIRE
         if self.is_campfire then
-            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)               
+            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)
           if move == nil then
             self.current_text = "..."
           else
@@ -406,11 +406,11 @@ function GameState:update(dt)
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
       -- set map to forest
-      self:initialize_map('forest_01')      
+      self:initialize_map('forest_01')
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
-    
+
     if self.campfire_position == 16 then
       self.state = STATE_MOVING
       self.is_campfire = false
@@ -572,7 +572,7 @@ function GameState:draw()
   -- scale world
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
   love.graphics.scale(scale_screen_width, scale_screen_height)
 
@@ -580,7 +580,7 @@ function GameState:draw()
     love.graphics.print({{255,255,128}, "Press Space to Start..."}, math.floor(swidth * .3), math.floor(sheight / 2))
     love.graphics.print({{255,255,128}, "Press r to change resolution"}, math.floor(swidth * .3), math.floor(sheight * .6))
     love.graphics.print({{255,255,128}, "Press q to quit"}, math.floor(swidth * .3), math.floor(sheight * .7))
-  
+
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
     for k,v in pairs(self.resolutions) do
@@ -653,7 +653,7 @@ function GameState:draw()
           local idea = self.new_idea
           if (self.characters[k]:get_campfire_move(self.campfire_position)) then
             love.graphics.draw(idea, self.characters[k].campfire_x + 25,
-              self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
+              self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0)
           end
         end
       end
@@ -874,13 +874,16 @@ function GameState:initialize_map(map, coords)
     if object.name == 'pickaxe' then
       table.insert(self.objects, Object:new(object.x, object.y, "The classic iron pickaxe. It appears that its previous owner abandoned it in a hurry. Perhaps they only needed it to obtain materials to create a better pickaxe."))
     end
+    if object.name == 'sign_forest' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The sign reads: \"Path to old mines closed due to increased goblin activity in the area.\""))
+    end
   end
 end
 
 function GameState:reset_character_encounter_positions()
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.characters[1].encounter_x = swidth * .05 + 96
@@ -897,7 +900,7 @@ end
 function GameState:initialize_characters(animation)
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.world_character = Character:new(love.graphics.newImage('data/battle_graadiabs.png'),
@@ -1084,7 +1087,7 @@ function GameState:initialize_characters(animation)
           thought = "A fight won't go the way you expect"
         }
       },
-      { 
+      {
         {
           text = "Well... we'd really appreciate it. Can't you spare us out of the goodness of your heart?",
           effect = -2,
