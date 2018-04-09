@@ -526,8 +526,8 @@ function GameState:handle_object_collision()
   for k,v in pairs(self.objects) do
     if not (wx > (v.x - 8) + 32 or
         (v.x - 8) > wx + 32 or
-        wy > v.y + 30 or
-        v.y > wy + 30) then
+        wy > (v.y - 8) + 32 or
+        (v.y - 8) > wy + 32) then
       return v.text
     end
   end
