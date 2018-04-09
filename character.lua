@@ -36,7 +36,7 @@ function Character._init(instance, image_world, image_encounter,
   instance.image_talk = image_talk
   instance.intro = ""
   instance.campfire = nil
-
+  instance.second_campfire = nil
   instance.second_benchmarks = {}
 end
 
@@ -54,6 +54,8 @@ function Character:inc_encounter()
   self.stress = 0
   self.current_benchmark_position = 1
   self.benchmarks = self.second_benchmarks
+
+  self.campfire = self.second_campfire
 end
 
 function Character:is_stressed()

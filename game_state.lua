@@ -1066,6 +1066,41 @@ function GameState:initialize_characters(animation)
 
     }
 
+    bermund.second_campfire = {
+      nil,
+      "Who, me? What?",
+      nil,
+      "What? No! Come on, you two know me better than that.",
+      nil,
+      "I didn't kill him! You two were the ones going off about how awful the lord was!",
+      nil,
+      nil,
+      "Yeah, and now we can't ever go back. What were we thinking?",
+      "I mean, I wanna do something, but...",
+      nil,
+      "A bunch of idiots.",
+      "Who are we kidding?",
+      nil,
+      "Yeah, it usually does. What world have you been living in?",
+      nil,
+      "What do you mean? We can't help! All of these things just keep happening, and we can't do anything to stop them.",
+      nil,
+      "Still. What are we supposed to do, just sit around and let them do it for us?",
+      nil,
+      "I guess. There's not a lot that we can do, but we might as well keep living.",
+      nil,
+      nil,
+      "I haven't got anywhere else, so...",
+      nil,
+      "So, it's settled then. We wander the world, seeking adventure, like the idiots we've always been.",
+      nil,
+      nil,
+      "Hmm. It's still not gonna be easy.",
+      nil,
+      "Are you are about that?",
+      nil
+    }
+
     bermund.campfire_image = love.graphics.newImage('data/campfire_bermund.png')
 
   bermund.stressed_move =
@@ -1175,6 +1210,42 @@ function GameState:initialize_characters(animation)
         "...What CAN we do, though?",
         nil
     }
+
+    sheera.second_campfire = 
+    {
+     "It was you, wasn't it?",
+     nil,
+     "When we all agreed to do something, murder is not what I had in mind.",
+     nil,
+     "Look, I'm the first to admit that that stupid nobleman deserved it...",
+     nil,
+     "That's fair, I suppose.",
+     "We almost didn't make it out of there.",
+     nil,
+     "Perhaps we... overestimated our own power.",
+     nil,
+     nil,
+     "Quite.",
+     nil,
+     nil,
+     "Come, now. Hope isn't lost just because we can't do anyhing.",
+     nil,
+     "Well, think for a moment. We didn't kill that nobleman, but someone did.",
+     nil,
+     "I don't have all the answers. I'm just saying we shouldn't give up hope.",
+     nil,
+     "Precisely!",
+     nil,
+     nil,
+     "I do, but I'd really rather stay here.",
+     nil,
+     "Wouldn't have it any other way.",
+     "And it's not as though the only good we can do is related to this lord. We can help people as we always have.",
+     nil,
+    "No. But we can do it.",
+    nil,
+    nil
+    }
     sheera.campfire_image = love.graphics.newImage('data/campfire_sheera.png')
     sheera.campfire_x = sheera.encounter_x * 4.5
     sheera.campfire_y = sheera.encounter_y
@@ -1277,6 +1348,41 @@ function GameState:initialize_characters(animation)
         nil,
         nil,
         "Something."
+    }
+
+    holly.second_campfire = {
+      "Berimund... is there anything you'd like to tell us?",
+      nil,
+      nil,
+      nil,
+      "Well, I have seen what you can do with those knives...",
+      nil,
+      "Yeah, you have a point.",
+      "I can't believe we managed to get away from that guard.",
+      nil,
+      nil,
+      "I... we set off to do something about that royal jerk, and look at us now.",
+      "We barely managed to survive somebody else 'doing something.'",
+      nil,
+      "So, what, that's it? Evil just... wins?",
+      nil,
+      nil,
+      "In my experience, if I don't do something, then nobody else does.",
+      nil,
+      "That's true. I don't like being helpless, though.",
+      nil,
+      nil,
+      "That's... an interesting way to see it.",
+      "Well, I'm not going anywhere. I suppose you two aren't either?",
+      nil,
+      nil,
+      nil,
+      "Wouldn't have it any other way.",
+      "And who knows, maybe an opportunity will come along where we really can make a change.",
+      nil,
+      nil,
+      nil,
+      "We have to believe that we can. What other choice do we have?"
     }
     holly.campfire_image = love.graphics.newImage('data/campfire_holly.png')
     holly.campfire_x = holly.encounter_x + 60
