@@ -451,8 +451,7 @@ function GameState:update_move_player(dt)
     if not self:has_collided_on_map(self.map, self.world_character.x, new_y) then
       self.world_character.y =  new_y
     end
-  end
-  if love.keyboard.isDown('a') then
+  elseif love.keyboard.isDown('a') then
     did_move = true
     self:animate_world_player(dt, "left")
     -- check bounds on current map
@@ -460,8 +459,7 @@ function GameState:update_move_player(dt)
     if not self:has_collided_on_map(self.map, new_x, self.world_character.y) then
       self.world_character.x = new_x
     end
-  end
-  if love.keyboard.isDown('s') then
+  elseif love.keyboard.isDown('s') then
     did_move = true
     self:animate_world_player(dt, "down")
     -- check bounds on current map
@@ -469,8 +467,7 @@ function GameState:update_move_player(dt)
     if not self:has_collided_on_map(self.map, self.world_character.x, new_y) then
       self.world_character.y = new_y
     end
-  end
-  if love.keyboard.isDown('d') then
+  elseif love.keyboard.isDown('d') then
     did_move = true
     self:animate_world_player(dt, "right")
     -- check bounds on current map
