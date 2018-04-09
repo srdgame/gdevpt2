@@ -631,7 +631,7 @@ function GameState:draw()
     end
 
     -- CAMPFIRE
-  elseif self.is_campfire then
+  elseif self.is_campfire or self.state == STATE_CAMPFIRE then
       -- render campfire scene
       love.graphics.draw(self.campfire_background, 0, 0, 0, 1, 1, 0, 0)
       -- render characters
