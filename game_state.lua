@@ -99,7 +99,7 @@ function GameState:_init(screen_width, screen_height)
 
   self.objects = {}
   self.showing_text_in_world = false
-
+  self.title_card = love.graphics.newImage('data/titlecard_01.png')
   self.visual_fx = nil
 end
 -- max chars on screen
@@ -577,10 +577,8 @@ function GameState:draw()
   love.graphics.scale(scale_screen_width, scale_screen_height)
 
   if self.state == STATE_MAIN_MENU then
-    love.graphics.print({{255,255,128}, "Press Space to Start..."}, math.floor(swidth * .3), math.floor(sheight / 2))
-    love.graphics.print({{255,255,128}, "Press r to change resolution"}, math.floor(swidth * .3), math.floor(sheight * .6))
-    love.graphics.print({{255,255,128}, "Press q to quit"}, math.floor(swidth * .3), math.floor(sheight * .7))
-  
+    love.graphics.draw(self.title_card, 0, 0)
+
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
     for k,v in pairs(self.resolutions) do
