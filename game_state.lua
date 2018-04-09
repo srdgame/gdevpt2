@@ -403,6 +403,8 @@ function GameState:update(dt)
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
+      -- set map to forest
+      self:initialize_map('forest_01')      
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
