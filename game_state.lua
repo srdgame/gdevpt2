@@ -903,6 +903,11 @@ function GameState:draw()
     love.graphics.translate(-tx, -ty)
     self.map:draw(-tx, -ty, scale_screen_width, scale_screen_height)
 
+    if self.enemy.image_world and
+       not (self.enemy.image_world == "deleted") then
+        love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
+    end
+
     if self.did_move then
       self.world_character.animation[self.world_character.current_animation]:draw(
         self.world_character.animation.image, self.world_character.x, self.world_character.y)
@@ -911,10 +916,7 @@ function GameState:draw()
       self.world_character.animation[self.world_character.current_animation .. "_idle"]:draw(
         self.world_character.animation.image, self.world_character.x, self.world_character.y)
     end
-    if self.enemy.image_world and
-       not (self.enemy.image_world == "deleted") then
-        love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
-    end
+
     --draw visual effect
     if self.visual_fx then
       love.graphics.draw(self.visual_fx, tx, ty, 0, 1, 1, 0, 0)
