@@ -360,7 +360,7 @@
   <object id="27" name="fence" x="1480.83" y="776.333" width="52.1667" height="19.5"/>
   <object id="28" name="fence" x="1510.83" y="709.667" width="19.5" height="60.8333"/>
   <object id="29" name="fence" x="1413.5" y="933.667" width="52.1667" height="19.5"/>
-  <object id="30" name="fence" x="1380.83" y="931.667" width="19.5" height="60.8333"/>
+  <object id="30" name="fence" x="1388.35" y="940.796" width="14.13" height="48.4823"/>
   <object id="31" name="fence" x="1604.17" y="934.333" width="52.1667" height="19.5"/>
   <object id="32" name="fence" x="1702.83" y="935" width="52.1667" height="19.5"/>
   <object id="33" name="fence" x="1734.17" y="1060.33" width="20.1667" height="54.8333"/>
@@ -378,7 +378,7 @@
   <object id="46" name="npc_8" x="549.25" y="325" width="21.25" height="23.5"/>
   <object id="47" name="npc_9" x="642.5" y="322.75" width="26.75" height="28.25"/>
   <object id="48" name="npc_7" x="674.375" y="866.375" width="27.25" height="28.625" visible="0"/>
-  <object id="49" name="npc_4" x="1346.07" y="896.953" width="26.625" height="27.75"/>
+  <object id="49" name="npc_4" x="1344.46" y="894.805" width="31.995" height="34.731"/>
   <object id="50" name="npc_2" x="1411.5" y="739.5" width="24" height="26"/>
   <object id="51" name="npc_6" x="1794.75" y="738.75" width="26.75" height="28"/>
   <object id="52" name="npc_5" x="1281.35" y="899.498" width="27.6769" height="25.5146"/>

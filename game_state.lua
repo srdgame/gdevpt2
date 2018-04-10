@@ -80,7 +80,7 @@ function GameState:_init(screen_width, screen_height)
   self.old_idea = love.graphics.newImage('data/ui_old_idea.png')
   self.no_idea = love.graphics.newImage('data/ui_no_idea.png')
   self.audio_manager = AudioManager:new()
-  self.current_song = self.audio_manager:get_sound('bgm', .3, true)
+  self.current_song = self.audio_manager:get_sound('encounter_one', .3, true)
   self.current_song:play()
   self.current_sfx = nil
   self.trust_bar = love.graphics.newImage('data/ui_trust_bar.png')
@@ -1053,9 +1053,15 @@ function GameState:initialize_map(map, coords)
     end
     if object.name == 'open_chest_deb' then
       table.insert(self.objects, Object:new(object.x, object.y, "The lock on this chest is actually still intact, but a steel lock can only do so much to protect a wooden chest from someone with an axe and enough determination."))
-end
+    end
     if object.name == 'sign_forest' then
       table.insert(self.objects, Object:new(object.x, object.y, "The sign reads: \"Path to old mines closed due to increased goblin activity in the area.\""))
+    end
+    if object.name == 'rock' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It sure is a big rock. What, did you think that walking up to the big rock and clicking on it would give you any information? What is this, the Space Quest series?"))
+    end
+    if object.name == 'stump' then
+      table.insert(self.objects, Object:new(object.x, object.y, "You're not entirely certain, but you have some reason to believe that there was, at one point, a tree here."))
     end
     if object.name == 'light_door' then
       table.insert(self.objects, Object:new(object.x, object.y, "Despite the lights being on inside the home, the door is locked."))

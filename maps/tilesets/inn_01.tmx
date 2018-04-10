@@ -103,8 +103,8 @@
 </data>
  </layer>
  <objectgroup name="objects" visible="0">
-  <object id="1" name="npc1" x="483.182" y="290.437" width="24.6661" height="27.0726"/>
-  <object id="2" name="npc3" x="449.492" y="355.411" width="27.6742" height="25.8693"/>
+  <object id="1" name="npc_1" x="481.569" y="287.211" width="28.4301" height="34.063"/>
+  <object id="2" name="npc_3" x="447.879" y="350.572" width="33.0514" height="34.4728"/>
  </objectgroup>
  <layer name="detail 2" width="31" height="22">
   <data encoding="csv">
