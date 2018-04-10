@@ -176,6 +176,7 @@ function GameState:update(dt)
           self.is_fading_to_map = false
           self.is_fading_to_encounter = false
           self.is_fading_to_campfire = false
+          self.should_fade_to_campfire = false
         end
       end
     end
