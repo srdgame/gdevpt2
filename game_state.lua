@@ -424,7 +424,7 @@ function GameState:update(dt)
         self.current_talking_head = self.current_character
         self.state = STATE_SHOWING_TEXT
         self.return_state_after_text = STATE_CHANGING_TRUST
-
+        local max_stress = false
         local move = ""
         -- INPUT FOR CAMPFIRE
         if self.is_campfire then
@@ -446,6 +446,7 @@ function GameState:update(dt)
           if move == nil then
             self.current_text = "..."
             self.trust_change_amount = -2
+            max_stress = true
           else
             self.current_text = self:wrap_text(move.text)
             self.trust_change_amount = move.effect
@@ -454,7 +455,15 @@ function GameState:update(dt)
         self.current_character_thought = ""
         self.current_benchmark_position = self.current_benchmark_position + 1
         -- adjust stress
-        self.characters[self.current_character]:increase_stress()
+        if max_stress then
+          if self.characters[self.current_character].stress == 2 then
+            self.characters[self.current_character].stress = 3
+          else
+            self.characters[self.current_character].stress = 2
+          end
+        else
+          self.characters[self.current_character]:increase_stress()
+        end
         for k,v in pairs(self.characters) do
           if not (k == self.current_character) then
             self.characters[k]:decrease_stress()
