@@ -49,7 +49,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_MAIN_MENU
+  self.state = STATE_MOVING
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -106,6 +106,7 @@ function GameState:_init(screen_width, screen_height)
   self.is_fading_to_encounter = false
   self.is_fading_to_campfire = false
   self.should_fade_to_campfire = false
+  self.is_fading_to_map_from_campfire = false
 end
 -- max chars on screen
 local max_lines = 5
@@ -147,7 +148,8 @@ function GameState:update(dt)
   walk_sound_timer = walk_sound_timer + dt
   fade_out_timer = fade_out_timer + dt
 
-  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire then 
+  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire
+    or self.is_fading_to_map_from_campfire then 
     if (fade_out_timer >= fade_out_delay) then
       --pprint(fade_out_index)
       --pprint(fade_images[fade_out_index])
@@ -167,6 +169,11 @@ function GameState:update(dt)
           if (self.is_fading_to_campfire) then
             self.state = STATE_CAMPFIRE
           end
+          if (self.is_fading_to_map_from_campfire) then
+            self.state = STATE_MOVING
+            self:initialize_map(self.destination_map[1], self.destination_map[2])
+            self.destination_map = ""
+          end
         end
       else
         fade_out_index = fade_out_index - 1
@@ -177,6 +184,7 @@ function GameState:update(dt)
           self.is_fading_to_encounter = false
           self.is_fading_to_campfire = false
           self.should_fade_to_campfire = false
+          self.is_fading_to_map_from_campfire = false
         end
       end
     end
@@ -322,6 +330,9 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_GET_NEXT_TEXT then
+    if self.is_fading_to_campfire or self.is_fading_to_encounter then
+      return
+    end
     if user_input_timer >= user_input_delay then
          -- press enter to skip intro
       if (self.return_state_after_text == STATE_INTRO)
@@ -342,6 +353,9 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
+    if self.is_fading_to_campfire or self.is_fading_to_encounter then
+      return
+    end
     -- render thought on initially selected character
     local get_thought_for_initial_character = self.current_character_thought == ""
     -- if the player pressed enter advance convo
@@ -479,19 +493,18 @@ function GameState:update(dt)
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
-      -- set map to forest
-      self:initialize_map('forest_01')      
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
     
     if self.campfire_position == 16 then
-      self.state = STATE_MOVING
       self.is_campfire = false
       self.had_campfire = true
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("forest", 1, true)
       self.current_song:play()
+      self.is_fading_to_map_from_campfire = true
+      self.destination_map = {'forest_01'}
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
@@ -789,7 +802,7 @@ function GameState:draw()
       or self.state == STATE_CHANGING_TRUST
       or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
       or self.state == STATE_GET_NEXT_TEXT then
-
+       
       -- render textbox and talking head
         if self.current_talking_head == "narrator" then
           -- render textbox blnk
@@ -808,7 +821,9 @@ function GameState:draw()
           if head == nil then
             head = self.prev_talking_head
           end
-          love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
+          if self.characters[head] then
+            love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
+          end
           love.graphics.print({{255, 255, 128}, self.prev_text},
             198, math.floor(sheight * .04))
         end
@@ -912,7 +927,7 @@ function GameState:draw()
       love.graphics.translate(-tx, -ty)
     end      
   end
-  if self.is_fading_to_encounter or self.is_fading_to_campfire then
+  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire then
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
   end
 end
