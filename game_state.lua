@@ -103,6 +103,7 @@ function GameState:_init(screen_width, screen_height)
   self.visual_fx = nil
   self.is_fading_to_map = false
   self.destination_map = ""
+  self.is_fading_to_encounter = false
 end
 -- max chars on screen
 local max_lines = 5
@@ -144,7 +145,7 @@ function GameState:update(dt)
   walk_sound_timer = walk_sound_timer + dt
   fade_out_timer = fade_out_timer + dt
 
-  if self.is_fading_to_map then 
+  if self.is_fading_to_map or self.is_fading_to_encounter then 
     if (fade_out_timer >= fade_out_delay) then
       --pprint(fade_out_index)
       --pprint(fade_images[fade_out_index])
@@ -153,8 +154,14 @@ function GameState:update(dt)
         fade_out_index = fade_out_index + 1
         if (fade_out_index == 10) then
           is_fading_out = false 
-          self:initialize_map(self.destination_map[1], self.destination_map[2])
-          self.destination_map = ""
+          if (self.is_fading_to_map) then
+            self:initialize_map(self.destination_map[1], self.destination_map[2])
+            self.destination_map = ""
+          end
+          if (self.is_fading_to_encounter) then
+            self.state = STATE_ENCOUNTER_INTRO
+            self.current_benchmark = 1
+          end
         end
       else
         fade_out_index = fade_out_index - 1
@@ -162,6 +169,7 @@ function GameState:update(dt)
           is_fading_out = true
           fade_out_index = 1
           self.is_fading_to_map = false
+          self.is_fading_to_encounter = false
         end
       end
     end
@@ -249,8 +257,7 @@ end
       -- check if the world character collided with an enemy
       if self:has_collided_on_enemy(self.map, self.world_character.x, self.world_character.y) then
         -- start encounter, reset current benchmark
-        self.state = STATE_ENCOUNTER_INTRO
-        self.current_benchmark = 1
+        self.is_fading_to_encounter = true
       else
         self.did_move = self:update_move_player(dt)
       end
@@ -872,6 +879,9 @@ function GameState:draw()
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
       love.graphics.translate(-tx, -ty)
     end      
+  end
+  if self.is_fading_to_encounter then
+      love.graphics.draw(fade_images[fade_out_index], 0, 0)
   end
 end
 
