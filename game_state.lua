@@ -101,6 +101,12 @@ function GameState:_init(screen_width, screen_height)
   self.showing_text_in_world = false
   self.title_card = love.graphics.newImage('data/titlecard_01.png')
   self.visual_fx = nil
+  self.is_fading_to_map = false
+  self.destination_map = ""
+  self.is_fading_to_encounter = false
+  self.is_fading_to_campfire = false
+  self.should_fade_to_campfire = false
+  self.is_fading_to_map_from_campfire = false
 end
 
 -- max chars on screen
@@ -118,12 +124,71 @@ local text_sound_delay = .05
 local walk_sound_timer = 0
 local walk_sound_delay = .3
 
+local fade_out_timer = 0
+local fade_out_delay = .08
+local fade_out_index = 1
+local is_fading_out = 1
+local fade_images = {
+  love.graphics.newImage('data/1.png'),
+  love.graphics.newImage('data/2.png'),
+  love.graphics.newImage('data/3.png'),
+  love.graphics.newImage('data/4.png'),
+  love.graphics.newImage('data/5.png'),
+  love.graphics.newImage('data/6.png'),
+  love.graphics.newImage('data/7.png'),
+  love.graphics.newImage('data/8.png'),
+  love.graphics.newImage('data/9.png'),
+  love.graphics.newImage('data/10.png')
+}
+
 function GameState:update(dt)
   -- update timers
   user_input_timer = user_input_timer + dt
   text_draw_timer  = text_draw_timer + dt
   text_sound_timer = text_sound_timer + dt
   walk_sound_timer = walk_sound_timer + dt
+  fade_out_timer = fade_out_timer + dt
+
+  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire
+    or self.is_fading_to_map_from_campfire then
+    if (fade_out_timer >= fade_out_delay) then
+      --pprint(fade_out_index)
+      --pprint(fade_images[fade_out_index])
+      fade_out_timer = 0
+      if (is_fading_out) then
+        fade_out_index = fade_out_index + 1
+        if (fade_out_index == 10) then
+          is_fading_out = false
+          if (self.is_fading_to_map) then
+            self:initialize_map(self.destination_map[1], self.destination_map[2])
+            self.destination_map = ""
+          end
+          if (self.is_fading_to_encounter) then
+            self.state = STATE_ENCOUNTER_INTRO
+            self.current_benchmark = 1
+          end
+          if (self.is_fading_to_campfire) then
+            self.state = STATE_CAMPFIRE
+          end
+          if (self.is_fading_to_map_from_campfire) then
+            self.is_campfire = false
+            self:initialize_map('forest_01')
+          end
+        end
+      else
+        fade_out_index = fade_out_index - 1
+        if (fade_out_index == 1) then
+          is_fading_out = true
+          fade_out_index = 1
+          self.is_fading_to_map = false
+          self.is_fading_to_encounter = false
+          self.is_fading_to_campfire = false
+          self.should_fade_to_campfire = false
+          self.is_fading_to_map_from_campfire = false
+        end
+      end
+    end
+  end
 
   -- game state update
   if self.state == STATE_INTRO then
@@ -167,7 +232,7 @@ function GameState:update(dt)
           goto change_res -- no break statement!
         end
       end
-      
+
       ::change_res::
       if change_res then
         love.window.setMode(self.screen_width, self.screen_height)
@@ -184,6 +249,9 @@ function GameState:update(dt)
 
   -- MOVING
   elseif self.state == STATE_MOVING then
+    if self.is_fading_to_map then
+      return
+    end
     self.did_move = false
     self.showing_text_in_world = false
     -- check if player hit a door
@@ -204,8 +272,7 @@ function GameState:update(dt)
       -- check if the world character collided with an enemy
       if self:has_collided_on_enemy(self.map, self.world_character.x, self.world_character.y) then
         -- start encounter, reset current benchmark
-        self.state = STATE_ENCOUNTER_INTRO
-        self.current_benchmark = 1
+        self.is_fading_to_encounter = true
       else
         self.did_move = self:update_move_player(dt)
       end
@@ -220,11 +287,18 @@ function GameState:update(dt)
     self.current_benchmark_position = 1
 
   elseif self.state == STATE_SHOWING_TEXT then
+    if self.is_fading_to_campfire then
+      return
+    end
     if self.current_text_to_display_idx == string.len(self.current_text) then
       if user_input_timer >= user_input_delay then
         if love.keyboard.isDown('space') then
           user_input_timer = 0
-          self.state = self.return_state_after_text
+          if self.should_fade_to_campfire then
+            self.is_fading_to_campfire = true
+          else
+            self.state = self.return_state_after_text
+          end
           self.text_buffer  = ""
           self.current_text = ""
           self.current_text_to_display_idx = 0
@@ -259,6 +333,9 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_GET_NEXT_TEXT then
+    if self.is_fading_to_campfire or self.is_fading_to_encounter then
+      return
+    end
     if user_input_timer >= user_input_delay then
          -- press enter to skip intro
       if (self.return_state_after_text == STATE_INTRO)
@@ -279,6 +356,9 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
+    if self.is_fading_to_campfire or self.is_fading_to_encounter then
+      return
+    end
     -- render thought on initially selected character
     local get_thought_for_initial_character = self.current_character_thought == ""
     -- if the player pressed enter advance convo
@@ -291,7 +371,7 @@ function GameState:update(dt)
         user_input_timer = 0
         ::get_another_character_down::
         self.current_character = (self.current_character % 3) + 1
-        if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
+        if self.is_campfire == true and (self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil) then
           goto get_another_character_down
         end
       elseif love.keyboard.isDown('w') then
@@ -300,7 +380,7 @@ function GameState:update(dt)
         self.current_character = ((self.current_character - 2) % 3) + 1
         if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
           goto get_another_character_up
-        end        
+        end
       end
       ::get_thought::
       if self.is_campfire then
@@ -319,11 +399,11 @@ function GameState:update(dt)
         self.current_talking_head = self.current_character
         self.state = STATE_SHOWING_TEXT
         self.return_state_after_text = STATE_CHANGING_TRUST
-         
+
         local move = ""
         -- INPUT FOR CAMPFIRE
         if self.is_campfire then
-            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)               
+            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)
           if move == nil then
             self.current_text = "..."
           else
@@ -403,7 +483,9 @@ function GameState:update(dt)
     self.state = STATE_SHOWING_TEXT
     if self.had_campfire then
       self.return_state_after_text = STATE_MOVING
+
     else
+      self.should_fade_to_campfire = true
       self.return_state_after_text = STATE_CAMPFIRE
     end
     -- remove enemy from map
@@ -416,23 +498,26 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_CAMPFIRE then
+    if self.is_fading_to_map_from_campfire then
+      return
+    end
     if self.is_campfire == false then
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
-      -- set map to forest
-      self:initialize_map('forest_01')      
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
-    
+
     if self.campfire_position == 16 then
       self.state = STATE_MOVING
-      self.is_campfire = false
       self.had_campfire = true
+
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("forest", 1, true)
       self.current_song:play()
+      self.is_fading_to_map_from_campfire = true
+
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
@@ -444,7 +529,7 @@ end
 function GameState:move_to_valid_character()
   ::get_another_character_down::
   if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
-    self.current_character = (self.current_character % 3) + 1    
+    self.current_character = (self.current_character % 3) + 1
     goto get_another_character_down
   end
 end
@@ -566,7 +651,8 @@ function GameState:handle_door_collision()
         coords.x > wx + 32 or
         wy > coords.y + 32 or
         coords.y > wy + 32) then
-      self:initialize_map(map, coords.target)
+        self.is_fading_to_map = true
+        self.destination_map = {map, coords.target}
       break
     end
   end
@@ -596,13 +682,12 @@ function GameState:draw()
   -- scale world
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
   love.graphics.scale(scale_screen_width, scale_screen_height)
 
   if self.state == STATE_MAIN_MENU then
     love.graphics.draw(self.title_card, 0, 0)
-
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
     for k,v in pairs(self.resolutions) do
@@ -677,7 +762,8 @@ function GameState:draw()
            idea = self.no_idea 
           end
             love.graphics.draw(idea, self.characters[k].campfire_x + 25,
-              self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
+              self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0)
+          end
         end
       end
     -- render 'next' modals
@@ -748,7 +834,9 @@ function GameState:draw()
           if head == nil then
             head = self.prev_talking_head
           end
-          love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
+          if self.characters[head] then
+            love.graphics.draw(self.characters[head].image_talk, 92, 15, 0, 1, 1, 0, 0)
+          end
           love.graphics.print({{255, 255, 128}, self.prev_text},
             198, math.floor(sheight * .04))
         end
@@ -849,8 +937,15 @@ function GameState:draw()
       end
       love.graphics.translate(-tx, -ty)
     end
-
-
+    if self.is_fading_to_encounter or self.is_fading_to_map or self.is_fading_to_map_from_campfire then
+      love.graphics.translate(tx, ty)
+      love.graphics.draw(fade_images[fade_out_index], 0, 0)
+      love.graphics.translate(-tx, -ty)
+      return
+    end
+  end
+  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire then
+      love.graphics.draw(fade_images[fade_out_index], 0, 0)
   end
 end
 
@@ -935,6 +1030,33 @@ function GameState:initialize_map(map, coords)
     end
     if object.name == 'open_chest_deb' then
       table.insert(self.objects, Object:new(object.x, object.y, "The lock on this chest is actually still intact, but a steel lock can only do so much to protect a wooden chest from someone with an axe and enough determination."))
+end
+    if object.name == 'sign_forest' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The sign reads: \"Path to old mines closed due to increased goblin activity in the area.\""))
+    end
+    if object.name == 'light_door' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Despite the lights being on inside the home, the door is locked."))
+    end
+    if object.name == 'dark_door' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The door is locked. No one appears to be home."))
+    end
+    if object.name == 'fence' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A wooden fence blocks your path."))
+    end
+    if object.name == 'locked_inn' then
+      table.insert(self.objects, Object:new(object.x, object.y, "This is not your room, you cannot enter."))
+    end
+    if object.name == '101' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is Room 101."))
+    end
+    if object.name == '102' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is, in fact, Room 102."))
+    end
+    if object.name == '103' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is, beyond a doubt, Room 102."))
+    end
+    if object.name == '104' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is Room 104, the one you have rented for the night."))
     end
   end
 end
@@ -942,7 +1064,7 @@ end
 function GameState:reset_character_encounter_positions()
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.characters[1].encounter_x = swidth * .05 + 96
@@ -959,7 +1081,7 @@ end
 function GameState:initialize_characters(animation)
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.world_character = Character:new(love.graphics.newImage('data/battle_graadiabs.png'),
@@ -1285,7 +1407,7 @@ function GameState:initialize_characters(animation)
           thought = "A fight won't go the way you expect"
         }
       },
-      { 
+      {
         {
           text = "Well... we'd really appreciate it. Can't you spare us out of the goodness of your heart?",
           effect = -2,

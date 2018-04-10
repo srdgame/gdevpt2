@@ -1,14 +1,14 @@
 return {
   version = "1.1",
   luaversion = "5.1",
-  tiledversion = "1.1.2",
+  tiledversion = "0.17.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 50,
   height = 50,
   tilewidth = 32,
   tileheight = 32,
-  nextobjectid = 3,
+  nextobjectid = 15,
   properties = {},
   tilesets = {
     {
@@ -25,11 +25,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {
@@ -214,11 +209,6 @@ return {
         x = 0,
         y = 0
       },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
       properties = {},
       terrains = {
         {
@@ -244,11 +234,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {},
@@ -337,7 +322,7 @@ return {
           id = 1,
           name = "character",
           type = "",
-          shape = "point",
+          shape = "rectangle",
           x = 576,
           y = 608,
           width = 0,
@@ -546,6 +531,178 @@ return {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      }
+    },
+    {
+      type = "objectgroup",
+      name = "objects",
+      visible = false,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      draworder = "topdown",
+      properties = {
+        ["target_x"] = 1856
+      },
+      objects = {
+        {
+          id = 3,
+          name = "stump",
+          type = "",
+          shape = "rectangle",
+          x = 707.72,
+          y = 644.827,
+          width = 23.4985,
+          height = 21.4251,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 4,
+          name = "sign_forest",
+          type = "",
+          shape = "rectangle",
+          x = 803,
+          y = 483.333,
+          width = 25.3333,
+          height = 25,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 5,
+          name = "fence",
+          type = "",
+          shape = "rectangle",
+          x = 612.667,
+          y = 484,
+          width = 179,
+          height = 23.3333,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 6,
+          name = "fence",
+          type = "",
+          shape = "rectangle",
+          x = 772.667,
+          y = 450.667,
+          width = 19.3333,
+          height = 32.3333,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 8,
+          name = "rock",
+          type = "",
+          shape = "rectangle",
+          x = 1028,
+          y = 742,
+          width = 24,
+          height = 24,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 9,
+          name = "stump",
+          type = "",
+          shape = "rectangle",
+          x = 1125,
+          y = 902,
+          width = 22,
+          height = 20,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 10,
+          name = "rock",
+          type = "",
+          shape = "rectangle",
+          x = 452,
+          y = 932.667,
+          width = 22.6667,
+          height = 24.6667,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 11,
+          name = "stump",
+          type = "",
+          shape = "rectangle",
+          x = 674.667,
+          y = 1124,
+          width = 26.6667,
+          height = 24.6667,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 12,
+          name = "fence",
+          type = "",
+          shape = "rectangle",
+          x = 581,
+          y = 1317,
+          width = 115,
+          height = 21,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        },
+        {
+          id = 13,
+          name = "fence",
+          type = "",
+          shape = "rectangle",
+          x = 771.5,
+          y = 1317,
+          width = 117.5,
+          height = 21.5,
+          rotation = 0,
+          visible = true,
+          properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      name = "doors",
+      visible = false,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      draworder = "topdown",
+      properties = {},
+      objects = {
+        {
+          id = 14,
+          name = "door",
+          type = "town_01",
+          shape = "rectangle",
+          x = 706,
+          y = 1336,
+          width = 64,
+          height = 10,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["target_x"] = 592,
+            ["target_y"] = 325
+          }
+        }
       }
     }
   }
