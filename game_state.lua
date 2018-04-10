@@ -99,7 +99,7 @@ function GameState:_init(screen_width, screen_height)
 
   self.objects = {}
   self.showing_text_in_world = false
-  self.title_card = love.graphics.newImage('data/titlecard_01.png')
+
   self.visual_fx = nil
   self.is_fading_to_map = false
   self.destination_map = ""
@@ -231,7 +231,7 @@ function GameState:update(dt)
           goto change_res -- no break statement!
         end
       end
-      
+
       ::change_res::
       if change_res then
         love.window.setMode(self.screen_width, self.screen_height)
@@ -368,18 +368,10 @@ function GameState:update(dt)
       -- go to next valid character
       if love.keyboard.isDown('s') then
         user_input_timer = 0
-        ::get_another_character_down::
         self.current_character = (self.current_character % 3) + 1
-        if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
-          goto get_another_character_down
-        end
       elseif love.keyboard.isDown('w') then
         user_input_timer = 0
-        ::get_another_character_up::
         self.current_character = ((self.current_character - 2) % 3) + 1
-        if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
-          goto get_another_character_up
-        end        
       end
       ::get_thought::
       if self.is_campfire then
@@ -398,11 +390,11 @@ function GameState:update(dt)
         self.current_talking_head = self.current_character
         self.state = STATE_SHOWING_TEXT
         self.return_state_after_text = STATE_CHANGING_TRUST
-         
+
         local move = ""
         -- INPUT FOR CAMPFIRE
         if self.is_campfire then
-            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)               
+            move = self.characters[self.current_character]:get_campfire_move(self.campfire_position)
           if move == nil then
             self.current_text = "..."
           else
@@ -499,30 +491,28 @@ function GameState:update(dt)
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
+
+
+      -- set map to forest
+      self:initialize_map('forest_01')
+
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
-    
+
     if self.campfire_position == 16 then
       self.state = STATE_MOVING
       self.had_campfire = true
+
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("forest", 1, true)
       self.current_song:play()
       self.is_fading_to_map_from_campfire = true
+
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
-     self:move_to_valid_character()
    end
-  end
-end
-
-function GameState:move_to_valid_character()
-  ::get_another_character_down::
-  if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
-    self.current_character = (self.current_character % 3) + 1    
-    goto get_another_character_down
   end
 end
 
@@ -555,7 +545,8 @@ function GameState:update_move_player(dt)
     if not self:has_collided_on_map(self.map, self.world_character.x, new_y) then
       self.world_character.y =  new_y
     end
-  elseif love.keyboard.isDown('a') then
+  end
+  if love.keyboard.isDown('a') then
     did_move = true
     self:animate_world_player(dt, "left")
     -- check bounds on current map
@@ -563,7 +554,8 @@ function GameState:update_move_player(dt)
     if not self:has_collided_on_map(self.map, new_x, self.world_character.y) then
       self.world_character.x = new_x
     end
-  elseif love.keyboard.isDown('s') then
+  end
+  if love.keyboard.isDown('s') then
     did_move = true
     self:animate_world_player(dt, "down")
     -- check bounds on current map
@@ -571,7 +563,8 @@ function GameState:update_move_player(dt)
     if not self:has_collided_on_map(self.map, self.world_character.x, new_y) then
       self.world_character.y = new_y
     end
-  elseif love.keyboard.isDown('d') then
+  end
+  if love.keyboard.isDown('d') then
     did_move = true
     self:animate_world_player(dt, "right")
     -- check bounds on current map
@@ -627,8 +620,8 @@ function GameState:handle_object_collision()
   for k,v in pairs(self.objects) do
     if not (wx > (v.x - 8) + 32 or
         (v.x - 8) > wx + 32 or
-        wy > (v.y - 8) + 32 or
-        (v.y - 8) > wy + 32) then
+        wy > v.y + 30 or
+        v.y > wy + 30) then
       return v.text
     end
   end
@@ -674,12 +667,14 @@ function GameState:draw()
   -- scale world
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
   love.graphics.scale(scale_screen_width, scale_screen_height)
 
   if self.state == STATE_MAIN_MENU then
-    love.graphics.draw(self.title_card, 0, 0)
+    love.graphics.print({{255,255,128}, "Press Space to Start..."}, math.floor(swidth * .3), math.floor(sheight / 2))
+    love.graphics.print({{255,255,128}, "Press r to change resolution"}, math.floor(swidth * .3), math.floor(sheight * .6))
+    love.graphics.print({{255,255,128}, "Press q to quit"}, math.floor(swidth * .3), math.floor(sheight * .7))
 
 
   elseif self.state == STATE_RESOLUTION_SELECT then
@@ -754,7 +749,7 @@ function GameState:draw()
           local idea = self.new_idea
           if (self.characters[k]:get_campfire_move(self.campfire_position)) then
             love.graphics.draw(idea, self.characters[k].campfire_x + 25,
-              self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0) 
+              self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0)
           end
         end
       end
@@ -984,32 +979,32 @@ function GameState:initialize_map(map, coords)
     if object.name == 'pickaxe' then
       table.insert(self.objects, Object:new(object.x, object.y, "The classic iron pickaxe. It appears that its previous owner abandoned it in a hurry. Perhaps they only needed it to obtain materials to create a better pickaxe."))
     end
-    if object.name == 'crate' then
-      table.insert(self.objects, Object:new(object.x, object.y, "It doesn't seem like it's ever been opened. Knocking on it produces a hollow sound. Maybe it was just used as decoration, and never actually held anything."))
+    if object.name == 'sign_forest' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The sign reads: \"Path to old mines closed due to increased goblin activity in the area.\""))
     end
-    if object.name == 'tnt_box' then
-      table.insert(self.objects, Object:new(object.x, object.y, "Explosives, for when regular mining just isn't dangerous enough. A close inspection reveals a small buildup of something crystalline on the wrappers. Perhaps someone less sane would see that as an opportunity, but you are not that person."))
+    if object.name == 'light_door' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Despite the lights being on inside the home, the door is locked."))
     end
-    if object.name == 'minecart_empty' then
-      table.insert(self.objects, Object:new(object.x, object.y, "It seems to be made of ancient, well-rusted iron. All but one of its wheels have fused to their housing."))
+    if object.name == 'dark_door' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The door is locked. No one appears to be home."))
     end
-    if object.name == 'minecart_grey' then
-      table.insert(self.objects, Object:new(object.x, object.y, "It's almost completely full of gravel. It appears that some genius overfilled it and then couldn't get it to move because it was too heavy."))
-      end
-    if object.name == 'minecart_brown' then
-      table.insert(self.objects, Object:new(object.x, object.y, "It appears that whoever has already explored this place decided that this pile of rocks wasn't worth looting, or even taking the time to walk all the way up to it and inspect it. And yet here you are. Go figure."))
+    if object.name == 'fence' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A wooden fence blocks your path."))
     end
-    if object.name == 'door_board' then
-      table.insert(self.objects, Object:new(object.x, object.y, "Seems like it was boarded up long ago. Looking through the barrier, you can tell that the shaft beyond has caved in. Never have you been more certain that you cannot explore an area."))
+    if object.name == 'locked_inn' then
+      table.insert(self.objects, Object:new(object.x, object.y, "This is not your room, you cannot enter."))
     end
-    if object.name == 'lamppost' then
-      table.insert(self.objects, Object:new(object.x, object.y, "Sheera declares that this lamppost is arcane in nature. According to her, it's 'beginner's work,' but she's never made anything like it before, so maybe she's not being entirely honest."))
+    if object.name == '101' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is Room 101."))
     end
-    if object.name == 'open_chest' then
-      table.insert(self.objects, Object:new(object.x, object.y, "Whoever looted this chest beforehand seemed so excited about its contents that they also stole its lid. Perhaps they had a chest already, but needed a lid."))
+    if object.name == '102' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is, in fact, Room 102."))
     end
-    if object.name == 'open_chest_deb' then
-      table.insert(self.objects, Object:new(object.x, object.y, "The lock on this chest is actually still intact, but a steel lock can only do so much to protect a wooden chest from someone with an axe and enough determination."))
+    if object.name == '103' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is, beyond a doubt, Room 102."))
+    end
+    if object.name == '104' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is Room 104, the one you have rented for the night."))
     end
   end
 end
@@ -1017,7 +1012,7 @@ end
 function GameState:reset_character_encounter_positions()
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.characters[1].encounter_x = swidth * .05 + 96
@@ -1034,7 +1029,7 @@ end
 function GameState:initialize_characters(animation)
   local scale_screen_width =  love.graphics.getWidth() / 640
   local scale_screen_height = love.graphics.getHeight() / 480
-  local swidth = love.graphics.getWidth() / scale_screen_width 
+  local swidth = love.graphics.getWidth() / scale_screen_width
   local sheight = love.graphics.getHeight() / scale_screen_height
 
   self.world_character = Character:new(love.graphics.newImage('data/battle_graadiabs.png'),
@@ -1221,7 +1216,7 @@ function GameState:initialize_characters(animation)
           thought = "A fight won't go the way you expect"
         }
       },
-      { 
+      {
         {
           text = "Well... we'd really appreciate it. Can't you spare us out of the goodness of your heart?",
           effect = -2,
