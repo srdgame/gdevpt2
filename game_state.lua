@@ -80,7 +80,7 @@ function GameState:_init(screen_width, screen_height)
   self.old_idea = love.graphics.newImage('data/ui_old_idea.png')
   self.no_idea = love.graphics.newImage('data/ui_no_idea.png')
   self.audio_manager = AudioManager:new()
-  self.current_song = self.audio_manager:get_sound('bgm', .3, true)
+  self.current_song = self.audio_manager:get_sound('encounter_one', .3, true)
   self.current_song:play()
   self.current_sfx = nil
   self.trust_bar = love.graphics.newImage('data/ui_trust_bar.png')
@@ -800,13 +800,13 @@ function GameState:draw()
         for k,v in pairs(self.characters) do
           local idea = self.new_idea
           if (self.characters[k]:get_campfire_move(self.campfire_position))  == nil then
-           idea = self.no_idea 
+           idea = self.no_idea
           end
             love.graphics.draw(idea, self.characters[k].campfire_x + 25,
               self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0)
         end
       end
-    
+
       -- render 'next' modals
     if self.state == STATE_GET_NEXT_TEXT
     or (self.current_text_to_display_idx > 0
@@ -988,6 +988,7 @@ function GameState:draw()
       return
     end
   end
+  
   if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire 
     or self.fade_to_credits 
     or self.fade_to_main_menu then
@@ -1076,9 +1077,15 @@ function GameState:initialize_map(map, coords)
     end
     if object.name == 'open_chest_deb' then
       table.insert(self.objects, Object:new(object.x, object.y, "The lock on this chest is actually still intact, but a steel lock can only do so much to protect a wooden chest from someone with an axe and enough determination."))
-end
+    end
     if object.name == 'sign_forest' then
       table.insert(self.objects, Object:new(object.x, object.y, "The sign reads: \"Path to old mines closed due to increased goblin activity in the area.\""))
+    end
+    if object.name == 'rock' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It sure is a big rock. What, did you think that walking up to the big rock and clicking on it would give you any information? What is this, the Space Quest series?"))
+    end
+    if object.name == 'stump' then
+      table.insert(self.objects, Object:new(object.x, object.y, "You're not entirely certain, but you have some reason to believe that there was, at one point, a tree here."))
     end
     if object.name == 'light_door' then
       table.insert(self.objects, Object:new(object.x, object.y, "Despite the lights being on inside the home, the door is locked."))
@@ -1103,6 +1110,33 @@ end
     end
     if object.name == '104' then
       table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is Room 104, the one you have rented for the night."))
+    end
+    if object.name == 'npc_1' then
+      table.insert(self.objects, Object:new(object.x, object.y, "I'd sell you a drink, but the game developers haven't programmed that, and it would sorta detract from the main focus of the game, so I'm mostly just here to establish the atmosphere."))
+    end
+    if object.name == 'npc_2' then
+      table.insert(self.objects, Object:new(object.x, object.y, "What? What'd you say? I'm a little hard of hearing because I'm really, really old."))
+    end
+    if object.name == 'npc_3' then
+      table.insert(self.objects, Object:new(object.x, object.y, "What're you looking at? Well, I know you're looking at me, I meant it more as, like, a threat… I'm sorry, I've messed this whole thing up."))
+    end
+    if object.name == 'npc_4' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Man, I sure am glad that the artist drew me with two arms."))
+    end
+    if object.name == 'npc_5' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Yeah, lucky you..."))
+    end
+    if object.name == 'npc_6' then
+      table.insert(self.objects, Object:new(object.x, object.y, "I like shorts! They're comfy and easy to wear."))
+    end
+    if object.name == 'npc_7' then
+      table.insert(self.objects, Object:new(object.x, object.y, "I used to be an adventurer like you."))
+    end
+    if object.name == 'npc_8' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It doesn't appear that this guard is saying anything. He looks like the kind of guy who takes his job way too seriously."))
+    end
+    if object.name == 'npc_9' then
+      table.insert(self.objects, Object:new(object.x, object.y, "That other guard, over there? He takes this whole thing too seriously. Guy hasn't said anything in like 6 hours. It makes for a boring shift, let me tell ya."))
     end
   end
 end
@@ -1181,7 +1215,7 @@ function GameState:initialize_characters(animation)
       }
     }
 
-    bermund.second_benchmarks = 
+    bermund.second_benchmarks =
     {
       {
         {
@@ -1322,7 +1356,7 @@ function GameState:initialize_characters(animation)
       }
     }
 
-    sheera.second_benchmarks = 
+    sheera.second_benchmarks =
     {
       {
         {
@@ -1379,7 +1413,7 @@ function GameState:initialize_characters(animation)
         nil
     }
 
-    sheera.second_campfire = 
+    sheera.second_campfire =
     {
      "It was you, wasn't it?",
      nil,
@@ -1462,7 +1496,7 @@ function GameState:initialize_characters(animation)
       }
     }
 
-    holly.second_benchmarks = 
+    holly.second_benchmarks =
     {
       {
         {
