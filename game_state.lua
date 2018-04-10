@@ -177,6 +177,10 @@ function GameState:update(dt)
           if (self.is_fading_to_map_from_campfire) then
             self.is_campfire = false
             self:initialize_map('forest_01')
+            -- increment to next encounter
+            for k,v in pairs(self.characters) do
+                self.characters[k]:inc_encounter()
+            end
           end
           if (self.fade_to_credits) then
             self.state = STATE_CREDITS
@@ -497,11 +501,6 @@ function GameState:update(dt)
     -- remove enemy from map
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
-
-    -- increment to next encounter
-    for k,v in pairs(self.characters) do
-        self.characters[k]:inc_encounter()
-    end
 
   elseif self.state == STATE_CAMPFIRE then
     if self.is_fading_to_map_from_campfire or self.fade_to_credits then

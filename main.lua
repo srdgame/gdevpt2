@@ -32,7 +32,7 @@ function love.load()
   }
 
   game_state:initialize_characters(animations)
-  game_state:initialize_map('tutorial_03')
+  game_state:initialize_map('tutorial_01')
 end
 
 -- Update Game State
