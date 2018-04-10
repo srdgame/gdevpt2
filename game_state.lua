@@ -24,6 +24,7 @@ local STATE_CAMPFIRE = 12
 local STATE_MAIN_MENU = 10
 local STATE_RESOLUTION_SELECT = 11
 
+local STATE_CREDITS = 100
 -- Represents the GameState
 -- This is everything in the game world that is updated and rendered.
 local GameState = {}
@@ -77,6 +78,7 @@ function GameState:_init(screen_width, screen_height)
   }
   self.new_idea = love.graphics.newImage('data/ui_new_idea.png')
   self.old_idea = love.graphics.newImage('data/ui_old_idea.png')
+  self.no_idea = love.graphics.newImage('data/ui_no_idea.png')
   self.audio_manager = AudioManager:new()
   self.current_song = self.audio_manager:get_sound('bgm', .3, true)
   self.current_song:play()
@@ -96,7 +98,6 @@ function GameState:_init(screen_width, screen_height)
   self.had_campfire = false
   self.campfire_position = 0
   self.campfire_background = love.graphics.newImage('data/background_campfire.png')
-
   self.objects = {}
   self.showing_text_in_world = false
   self.title_card = love.graphics.newImage('data/titlecard_01.png')
@@ -107,7 +108,10 @@ function GameState:_init(screen_width, screen_height)
   self.is_fading_to_campfire = false
   self.should_fade_to_campfire = false
   self.is_fading_to_map_from_campfire = false
+  self.is_second_campfire = false
+  self.fade_to_credits = false
 end
+
 -- max chars on screen
 local max_lines = 5
 -- delay input for encounter
@@ -149,7 +153,8 @@ function GameState:update(dt)
   fade_out_timer = fade_out_timer + dt
 
   if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire
-    or self.is_fading_to_map_from_campfire then
+    or self.is_fading_to_map_from_campfire
+    or self.fade_to_credits then
     if (fade_out_timer >= fade_out_delay) then
       --pprint(fade_out_index)
       --pprint(fade_images[fade_out_index])
@@ -172,6 +177,13 @@ function GameState:update(dt)
           if (self.is_fading_to_map_from_campfire) then
             self.is_campfire = false
             self:initialize_map('forest_01')
+            -- increment to next encounter
+            for k,v in pairs(self.characters) do
+                self.characters[k]:inc_encounter()
+            end
+          end
+          if (self.fade_to_credits) then
+            self.state = STATE_CREDITS
           end
         end
       else
@@ -184,6 +196,7 @@ function GameState:update(dt)
           self.is_fading_to_campfire = false
           self.should_fade_to_campfire = false
           self.is_fading_to_map_from_campfire = false
+          self.fade_to_credits = false
         end
       end
     end
@@ -472,6 +485,9 @@ function GameState:update(dt)
 
   elseif self.state == STATE_ESCAPE_ENCOUNTER
     or self.state == STATE_DIED_ENCOUNTER then
+    if self.had_campfire then
+      self.is_second_campfire = true
+    end
     -- enemy says encounter text
     if self.state == STATE_ESCAPE_ENCOUNTER then
       self.current_text = self:wrap_text(self.enemy.escape_text)
@@ -480,19 +496,14 @@ function GameState:update(dt)
     end
     self.current_talking_head = "enemy"
     self.state = STATE_SHOWING_TEXT
-    if self.had_campfire then
-      self.return_state_after_text = STATE_MOVING
-
-    else
-      self.should_fade_to_campfire = true
-      self.return_state_after_text = STATE_CAMPFIRE
-    end
+    self.should_fade_to_campfire = true
+    self.return_state_after_text = STATE_CAMPFIRE
     -- remove enemy from map
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
 
   elseif self.state == STATE_CAMPFIRE then
-    if self.is_fading_to_map_from_campfire then
+    if self.is_fading_to_map_from_campfire or self.fade_to_credits then
       return
     end
     if self.is_campfire == false then
@@ -503,7 +514,11 @@ function GameState:update(dt)
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
 
-    if self.campfire_position == 16 then
+    if self.campfire_position == 16 or self.campfire_position == 33 then
+      if self.is_second_campfire then
+        self.fade_to_credits = true
+        return
+      end
       self.state = STATE_MOVING
       self.had_campfire = true
 
@@ -511,7 +526,7 @@ function GameState:update(dt)
       self.current_song = self.audio_manager:get_sound("forest", 1, true)
       self.current_song:play()
       self.is_fading_to_map_from_campfire = true
-
+      self.campfire_position = 0
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
@@ -614,7 +629,7 @@ end
 
 function GameState:has_collided_on_enemy(map, character_x, character_y)
   for k, object in pairs(map.objects) do
-    if object.name == "enemy" then
+    if object.name == "enemy" or object.name == "knight" then
       if self:has_collided(character_x, character_y, object.x, object.y, 32, 32) then
         return true
       end
@@ -654,7 +669,7 @@ end
 
 function GameState:remove_enemy_from_map(map)
   for k, object in pairs(map.objects) do
-    if object.name == "enemy" then
+    if object.name == "enemy" or object.name == "knight" then
       -- this is totally a hack, but I couldn't figure out how to delete
       -- objects from maps otherwise. Setting map[k] = nil didn't do it
       -- since map.objects returns a list with different keys than the global map.
@@ -680,7 +695,18 @@ function GameState:draw()
   local sheight = love.graphics.getHeight() / scale_screen_height
   love.graphics.scale(scale_screen_width, scale_screen_height)
 
-  if self.state == STATE_MAIN_MENU then
+  if self.state == STATE_CREDITS then
+    love.graphics.printf("CREDITS", 0, 30, swidth, "center")
+    love.graphics.printf("Arvin Sharma: Lead Programmer", 0, 90, swidth, "center")
+    love.graphics.printf("Eric Crawford: Lead Artist", 0, 120, swidth, "center")
+    love.graphics.printf("Lena Wyant: Head Writer", 0, 150, swidth, "center")
+    love.graphics.printf("Caroline Pasyanos: Project Manager", 0, 180, swidth, "center")
+    love.graphics.printf("Michael Lucas: Programmer", 0, 210, swidth, "center")
+    love.graphics.printf("Arjun Arora: Sound Designer", 0, 240, swidth, "center")
+
+    love.graphics.printf("Thanks for playing!", 0, 300, swidth, "center")
+
+  elseif self.state == STATE_MAIN_MENU then
     love.graphics.draw(self.title_card, 0, 0)
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
@@ -710,7 +736,7 @@ function GameState:draw()
     end
 
     -- CAMPFIRE
-  elseif self.is_campfire then
+  elseif self.is_campfire or self.state == STATE_CAMPFIRE then
       -- render campfire scene
       love.graphics.draw(self.campfire_background, 0, 0, 0, 1, 1, 0, 0)
       -- render characters
@@ -752,13 +778,15 @@ function GameState:draw()
       if self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT then
         for k,v in pairs(self.characters) do
           local idea = self.new_idea
-          if (self.characters[k]:get_campfire_move(self.campfire_position)) then
+          if (self.characters[k]:get_campfire_move(self.campfire_position))  == nil then
+           idea = self.no_idea 
+          end
             love.graphics.draw(idea, self.characters[k].campfire_x + 25,
               self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0)
-          end
         end
       end
-    -- render 'next' modals
+    
+      -- render 'next' modals
     if self.state == STATE_GET_NEXT_TEXT
     or (self.current_text_to_display_idx > 0
       and self.current_text_to_display_idx == string.len(self.current_text)) then
@@ -862,8 +890,11 @@ function GameState:draw()
         if thought == nil
           or string.len(thought) == 0
           or thought == "..." then
+          idea = self.no_idea
+        elseif thought == self.characters[k]:get_thought(self.current_benchmark, self.current_benchmark_position - 1) then
           idea = self.old_idea
         end
+
         love.graphics.draw(idea, self.characters[k].encounter_x + 25,
         self.characters[k].encounter_y - 10, 0, 1, 1, 0, 0)
       end
@@ -892,6 +923,11 @@ function GameState:draw()
     love.graphics.translate(-tx, -ty)
     self.map:draw(-tx, -ty, scale_screen_width, scale_screen_height)
 
+    if self.enemy.image_world and
+       not (self.enemy.image_world == "deleted") then
+        love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
+    end
+
     if self.did_move then
       self.world_character.animation[self.world_character.current_animation]:draw(
         self.world_character.animation.image, self.world_character.x, self.world_character.y)
@@ -900,10 +936,7 @@ function GameState:draw()
       self.world_character.animation[self.world_character.current_animation .. "_idle"]:draw(
         self.world_character.animation.image, self.world_character.x, self.world_character.y)
     end
-    if self.enemy.image_world and
-       not (self.enemy.image_world == "deleted") then
-        love.graphics.draw(self.enemy.image_world, self.enemy.x, self.enemy.y, 0, 1, 1, 0, 0)
-    end
+
     --draw visual effect
     if self.visual_fx then
       love.graphics.draw(self.visual_fx, tx, ty, 0, 1, 1, 0, 0)
@@ -933,7 +966,8 @@ function GameState:draw()
       return
     end
   end
-  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire then
+  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire 
+    or self.fade_to_credits then
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
   end
 end
@@ -967,6 +1001,15 @@ function GameState:initialize_map(map, coords)
                         love.graphics.newImage('data/textbox_graadiabs.png'))
       self.enemy.x = object.x
       self.enemy.y = object.y
+    end
+    if object.name == "knight" then
+      self.enemy = Enemy:new(love.graphics.newImage('data/dungeon_guard.png'),
+                        love.graphics.newImage('data/battle_guard.png'),
+                        love.graphics.newImage('data/textbox_guard.png'))
+      self.enemy.x = object.x
+      self.enemy.y = object.y
+      self.enemy:next_encounter()
+      self.encounter_background = love.graphics.newImage('data/background_guard.png')
     end
     if object.name == 'door' then
       coords = {}
@@ -1115,6 +1158,39 @@ function GameState:initialize_characters(animation)
       }
     }
 
+    bermund.second_benchmarks = 
+    {
+      {
+        {
+          text = "Gentle sir, why? Have we commited any misconduct?",
+          effect = 1,
+          thought = "Why?"
+        }
+      },
+      {
+        {
+          text = "Oh, that's simply dreadful! But sir, please, this assassination couldn't have been committed by lowly adventurers such as we. We're brand-new to the profession, and don't really have any experience killing, especially not of noblemen.",
+          effect = -3,
+          thought = "We're not powerful enough"
+        }
+      },
+      {
+        {
+          text = "Please, sir, there's simply no way that simple adventurers such as ourselves could commit such a vile act. It is beyond our capabilities!",
+          effect = 1,
+          thought = "This couldn't have been us"
+        }
+      },
+
+      {
+        {
+          text = "While I certainly respect the authority held by your illustrious office, sir, is such detainment really necessary? My companions and I are merely passing through, and I assure you that if you let us go now, you won't hear from us ever again.",
+          effect = -3,
+          thought = "You won't ever hear from us if you let us go"
+        }
+      }
+    }
+
     bermund.campfire =
     {
       "And they said I could never make it in the theatre.",
@@ -1134,6 +1210,42 @@ function GameState:initialize_characters(animation)
       "Something."
 
     }
+
+    bermund.second_campfire = {
+      nil,
+      "Who, me? What?",
+      nil,
+      "What? No! Come on, you two know me better than that.",
+      nil,
+      "I didn't kill him! You two were the ones going off about how awful the lord was!",
+      nil,
+      nil,
+      "Yeah, and now we can't ever go back. What were we thinking?",
+      "I mean, I wanna do something, but...",
+      nil,
+      "A bunch of idiots.",
+      "Who are we kidding?",
+      nil,
+      "Yeah, it usually does. What world have you been living in?",
+      nil,
+      "What do you mean? We can't help! All of these things just keep happening, and we can't do anything to stop them.",
+      nil,
+      "Still. What are we supposed to do, just sit around and let them do it for us?",
+      nil,
+      "I guess. There's not a lot that we can do, but we might as well keep living.",
+      nil,
+      nil,
+      "I haven't got anywhere else, so...",
+      nil,
+      "So, it's settled then. We wander the world, seeking adventure, like the idiots we've always been.",
+      nil,
+      nil,
+      "Hmm. It's still not gonna be easy.",
+      nil,
+      "Are you are about that?",
+      nil
+    }
+
     bermund.campfire_image = love.graphics.newImage('data/campfire_bermund.png')
 
   bermund.stressed_move =
@@ -1186,6 +1298,40 @@ function GameState:initialize_characters(animation)
         }
       }
     }
+
+    sheera.second_benchmarks = 
+    {
+      {
+        {
+          text = "Oh, bollocks-what do you want?",
+          effect = -3,
+          thought = "Ugh"
+        }
+      },
+      {
+        {
+          text = "That's rather unfortunate, Captain, but we've just arrived in town. What motivation could we possibly have to murder some man we have never met in a town we haven't visited? You can ask the inkeeper downstairs, she'll attest that we haven't been seen in town before.",
+          effect = 5,
+          thought = "We're new in town"
+        }
+      },
+      {
+        {
+          text = "With all due respect, sir, do I truly look like someone who is in such a dire need of gold that I would resort to murder for it? I adventure simply for the excitement, and I assure you, my coffers are quite full.",
+          effect = -3,
+          thought = "Do I look like I need the money?"
+        }
+      },
+      {
+        {
+          text = "Well, you certainly could, if you like. You could chain us up, drag us across town, file the necessary paperwork to keep us detained, relieve my dear, sneaky companion here of all of his hidden lockpicks, find some way to effectively prevent me, an arcane practitioner, from opening the cell with magic, feed us for however many days it takes you to find the real killer, and then appropriately release and pardon us when you do. But that doesn't sound like the most effective use of your time when there's a royal assassin to catch, no?",
+          effect = 7,
+          thought = "That's a waste of your time"
+        }
+      }
+    }
+
+
     sheera.stressed_move =
     {
       text = "All right, I've had it. I'm done arguing with a dirty goblin. Let us leave or we'll kill you all!",
@@ -1208,6 +1354,42 @@ function GameState:initialize_characters(animation)
         nil,
         "...What CAN we do, though?",
         nil
+    }
+
+    sheera.second_campfire = 
+    {
+     "It was you, wasn't it?",
+     nil,
+     "When we all agreed to do something, murder is not what I had in mind.",
+     nil,
+     "Look, I'm the first to admit that that stupid nobleman deserved it...",
+     nil,
+     "That's fair, I suppose.",
+     "We almost didn't make it out of there.",
+     nil,
+     "Perhaps we... overestimated our own power.",
+     nil,
+     nil,
+     "Quite.",
+     nil,
+     nil,
+     "Come, now. Hope isn't lost just because we can't do anyhing.",
+     nil,
+     "Well, think for a moment. We didn't kill that nobleman, but someone did.",
+     nil,
+     "I don't have all the answers. I'm just saying we shouldn't give up hope.",
+     nil,
+     "Precisely!",
+     nil,
+     nil,
+     "I do, but I'd really rather stay here.",
+     nil,
+     "Wouldn't have it any other way.",
+     "And it's not as though the only good we can do is related to this lord. We can help people as we always have.",
+     nil,
+    "No. But we can do it.",
+    nil,
+    nil
     }
     sheera.campfire_image = love.graphics.newImage('data/campfire_sheera.png')
     sheera.campfire_x = sheera.encounter_x * 4.5
@@ -1256,6 +1438,39 @@ function GameState:initialize_characters(animation)
         }
       }
     }
+
+    holly.second_benchmarks = 
+    {
+      {
+        {
+          text = "Does someone need our help?",
+          effect = 2,
+          thought = "Need Help?"
+        }
+      },
+      {
+        {
+          text = "We're not assassins. I've never had any reason to fight another human, but I assure you that if I did, I would face them honorably. I'm very sorry to hear that a man was murdered, but it was not by our hand. My companions and I would be happy to help you find the real killer.",
+          effect = 1,
+          thought = "We're not assassins"
+        }
+      },
+      {
+        {
+          text = "It's completely different! I became an adventurer because I wanted to help people, to save people. Look me in the eyes and tell me if you see a murderer.",
+          effect = 5,
+          thought = "It's completely different"
+        }
+      },
+      {
+        {
+          text = "Look, we would've happily helped you if you'd let us We help people, that's what we do. But the fact that we're standing here, talking to you at all, pretty clearly shows that we didn't do this. The lord is no friend of ours, either, so if you don't want our help, then we'll be on our way.",
+          effect = 3,
+          thought = "Bad idea"
+        }
+      }
+    }
+
     holly.stressed_move =
     {
       text = "You monsters are all the same. You want me in your stomach? Fine, but my sword is going there first.",
@@ -1278,6 +1493,41 @@ function GameState:initialize_characters(animation)
         nil,
         nil,
         "Something."
+    }
+
+    holly.second_campfire = {
+      "Berimund... is there anything you'd like to tell us?",
+      nil,
+      nil,
+      nil,
+      "Well, I have seen what you can do with those knives...",
+      nil,
+      "Yeah, you have a point.",
+      "I can't believe we managed to get away from that guard.",
+      nil,
+      nil,
+      "I... we set off to do something about that royal jerk, and look at us now.",
+      "We barely managed to survive somebody else 'doing something.'",
+      nil,
+      "So, what, that's it? Evil just... wins?",
+      nil,
+      nil,
+      "In my experience, if I don't do something, then nobody else does.",
+      nil,
+      "That's true. I don't like being helpless, though.",
+      nil,
+      nil,
+      "That's... an interesting way to see it.",
+      "Well, I'm not going anywhere. I suppose you two aren't either?",
+      nil,
+      nil,
+      nil,
+      "Wouldn't have it any other way.",
+      "And who knows, maybe an opportunity will come along where we really can make a change.",
+      nil,
+      nil,
+      nil,
+      "We have to believe that we can. What other choice do we have?"
     }
     holly.campfire_image = love.graphics.newImage('data/campfire_holly.png')
     holly.campfire_x = holly.encounter_x + 60

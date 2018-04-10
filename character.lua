@@ -36,6 +36,8 @@ function Character._init(instance, image_world, image_encounter,
   instance.image_talk = image_talk
   instance.intro = ""
   instance.campfire = nil
+  instance.second_campfire = nil
+  instance.second_benchmarks = {}
 end
 
 function Character:increase_stress()
@@ -48,6 +50,14 @@ function Character:decrease_stress()
   end
 end
 
+function Character:inc_encounter()
+  self.stress = 0
+  self.current_benchmark_position = 1
+  self.benchmarks = self.second_benchmarks
+
+  self.campfire = self.second_campfire
+end
+
 function Character:is_stressed()
   return self.stress >= 2
 end
@@ -57,7 +67,11 @@ function Character:get_stressed_move()
 end
 
 function Character:get_thought(benchmark_number, benchmark_position)
-  return (self.benchmarks[benchmark_number][benchmark_position]).thought
+  local bench = self.benchmarks[benchmark_number][benchmark_position]
+  if bench == nil then
+    return nil
+  end
+  return bench.thought
 end
 
 function Character:get_benchmark_move(benchmark_number, benchmark_position)
