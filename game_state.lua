@@ -164,8 +164,6 @@ function GameState:update(dt)
     or self.fade_to_credits
     or self.fade_to_main_menu then
     if (fade_out_timer >= fade_out_delay) then
-      --pprint(fade_out_index)
-      --pprint(fade_images[fade_out_index])
       fade_out_timer = 0
       if (is_fading_out) then
         fade_out_index = fade_out_index + 1
@@ -475,7 +473,6 @@ function GameState:update(dt)
         self.enemy:change_trust(delta * -1)
         self.trust_change_amount = self.trust_change_amount + delta
     else
-      print(self.enemy.trust)
       -- is encounter over?
       if self.enemy.trust > self.enemy_win_min then
         self.state = STATE_ESCAPE_ENCOUNTER
