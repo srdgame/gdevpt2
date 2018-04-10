@@ -350,11 +350,6 @@ return {
         x = 0,
         y = 0
       },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
       properties = {},
       terrains = {},
       tilecount = 99,
@@ -453,10 +448,8 @@ return {
           rotation = 0,
           visible = true,
           properties = {
-
-            ["target_x"] = 352,
+            ["target_x"] = 355,
             ["target_y"] = 1056
-
           }
         }
       }

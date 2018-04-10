@@ -1,7 +1,7 @@
 return {
   version = "1.1",
   luaversion = "5.1",
-  tiledversion = "1.1.2",
+  tiledversion = "0.17.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 50,
@@ -25,11 +25,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {
@@ -214,11 +209,6 @@ return {
         x = 0,
         y = 0
       },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
       properties = {},
       terrains = {
         {
@@ -244,11 +234,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {},
@@ -337,7 +322,7 @@ return {
           id = 1,
           name = "character",
           type = "",
-          shape = "point",
+          shape = "rectangle",
           x = 576,
           y = 608,
           width = 0,
@@ -715,7 +700,7 @@ return {
           visible = true,
           properties = {
             ["target_x"] = 592,
-            ["target_y"] = 320
+            ["target_y"] = 325
           }
         }
       }

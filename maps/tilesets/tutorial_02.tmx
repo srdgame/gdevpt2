@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<map version="1.0" tiledversion="1.1.2" orientation="orthogonal" renderorder="right-down" width="45" height="37" tilewidth="32" tileheight="32" infinite="0" nextobjectid="27">
-
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="45" height="37" tilewidth="32" tileheight="32" nextobjectid="27">
  <tileset firstgid="1" source="tileset_dusty_v02.tsx"/>
  <tileset firstgid="41" source="tileset_mining_v01.tsx"/>
  <tileset firstgid="56" source="tileset_town_v01.tsx"/>
@@ -55,10 +53,8 @@
   </object>
   <object id="4" name="door" type="tutorial_03" x="1070.59" y="832.035" width="17.0791" height="31.3836">
    <properties>
-
-    <property name="target_x" type="int" value="352"/>
+    <property name="target_x" type="int" value="355"/>
     <property name="target_y" type="int" value="1056"/>
-
    </properties>
   </object>
  </objectgroup>
