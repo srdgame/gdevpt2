@@ -49,7 +49,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_CAMPFIRE
+  self.state = STATE_MOVING
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -286,6 +286,9 @@ function GameState:update(dt)
     self.current_benchmark_position = 1
 
   elseif self.state == STATE_SHOWING_TEXT then
+    if self.is_fading_to_campfire then
+      return
+    end
     if self.current_text_to_display_idx == string.len(self.current_text) then
       if user_input_timer >= user_input_delay then
         if love.keyboard.isDown('space') then
@@ -496,7 +499,6 @@ function GameState:update(dt)
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
-      --self:initialize_map('forest_01')
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
