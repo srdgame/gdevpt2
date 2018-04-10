@@ -352,10 +352,18 @@ function GameState:update(dt)
       -- go to next valid character
       if love.keyboard.isDown('s') then
         user_input_timer = 0
+        ::get_another_character_down::
         self.current_character = (self.current_character % 3) + 1
+        if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
+          goto get_another_character_down
+        end
       elseif love.keyboard.isDown('w') then
-        user_input_timer = 0          
+        user_input_timer = 0
+        ::get_another_character_up::
         self.current_character = ((self.current_character - 2) % 3) + 1
+        if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
+          goto get_another_character_up
+        end        
       end
       ::get_thought::
       if self.is_campfire then
@@ -481,10 +489,22 @@ function GameState:update(dt)
       self.state = STATE_MOVING
       self.is_campfire = false
       self.had_campfire = true
+      self.current_song:stop()
+      self.current_song = self.audio_manager:get_sound("forest", 1, true)
+      self.current_song:play()
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
+     self:move_to_valid_character()
    end
+  end
+end
+
+function GameState:move_to_valid_character()
+  ::get_another_character_down::
+  if self.is_campfire and self.characters[self.current_character]:get_campfire_move(self.campfire_position) == nil then
+    self.current_character = (self.current_character % 3) + 1    
+    goto get_another_character_down
   end
 end
 

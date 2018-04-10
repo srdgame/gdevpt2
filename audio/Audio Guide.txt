@@ -1,12 +1,12 @@
 GAME AUDIO
 
-Intro Level Background Music (bgm.wav): is played from the opening of the game until the end of the first encounter with the Goblin King. Needs to fade out after end of the encounter.
+encounter_one.wav: is played from the opening of the game until the end of the first encounter with the Goblin King. Needs to fade out after end of the encounter.
 
 firseside_chat.wav: Plays after the music in encounter 1 with the goblin king when the characters are chatting at the fireside.
 
 post_fireside_chat.wav: plays after fireside chat when the player loads into the forest
 
-Encounter 2: plays during encounter 2, the political assassination 
+encounter_two.wav: plays during encounter 2, the political assassination 
 
 second_fireside_chat.wav: played after encounter. Closing scene
 
@@ -15,15 +15,14 @@ second_fireside_chat.wav: played after encounter. Closing scene
 
 SFX
 
+knock_on_crate: play when player interacts with a crate.
 
-Knocking on Crate: play when player interacts with a crate.
+chest_open_sound: plays when player opens a chest
 
-Chest Open Sound: plays when player opens a chest
+walk.wav: player walking sound
 
-Walk.wav: player walking sound
+char-text.wav: plays on every character in the text during an encounter
 
-Char-text.wav: plays on every character in the text during an encounter
+player_mousehover_sound.wav: when the mouse goes over a character during an encounter
 
-Player_mousehover_sound.wav: when the mouse goes over a character during an encounter
-
-Player_select_sound.wav: when a character is selected during an encounter
+player_select_sound.wav: when a character is selected during an encounter
