@@ -877,6 +877,30 @@ function GameState:initialize_map(map, coords)
     if object.name == 'sign_forest' then
       table.insert(self.objects, Object:new(object.x, object.y, "The sign reads: \"Path to old mines closed due to increased goblin activity in the area.\""))
     end
+    if object.name == 'light_door' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Despite the lights being on inside the home, the door is locked."))
+    end
+    if object.name == 'dark_door' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The door is locked. No one appears to be home."))
+    end
+    if object.name == 'fence' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A wooden fence blocks your path."))
+    end
+    if object.name == 'locked_inn' then
+      table.insert(self.objects, Object:new(object.x, object.y, "This is not your room, you cannot enter."))
+    end
+    if object.name == '101' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is Room 101."))
+    end
+    if object.name == '102' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is, in fact, Room 102."))
+    end
+    if object.name == '103' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is, beyond a doubt, Room 102."))
+    end
+    if object.name == '104' then
+      table.insert(self.objects, Object:new(object.x, object.y, "A sign indicating that this is Room 104, the one you have rented for the night."))
+    end
   end
 end
 

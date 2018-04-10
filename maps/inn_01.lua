@@ -515,7 +515,10 @@ return {
           height = 18,
           rotation = 0,
           visible = true,
-          properties = {}
+          properties = {
+            ["target_x"] = 1856,
+            ["target_y"] = 544
+          }
         }
       }
     },

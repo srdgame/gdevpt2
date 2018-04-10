@@ -8,7 +8,7 @@ return {
   height = 50,
   tilewidth = 32,
   tileheight = 32,
-  nextobjectid = 14,
+  nextobjectid = 15,
   properties = {},
   tilesets = {
     {
@@ -556,7 +556,9 @@ return {
       offsetx = 0,
       offsety = 0,
       draworder = "topdown",
-      properties = {},
+      properties = {
+        ["target_x"] = 1856
+      },
       objects = {
         {
           id = 3,
@@ -607,7 +609,7 @@ return {
           width = 19.3333,
           height = 32.3333,
           rotation = 0,
-          visible = false,
+          visible = true,
           properties = {}
         },
         {
@@ -687,6 +689,34 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        }
+      }
+    },
+    {
+      type = "objectgroup",
+      name = "doors",
+      visible = false,
+      opacity = 1,
+      offsetx = 0,
+      offsety = 0,
+      draworder = "topdown",
+      properties = {},
+      objects = {
+        {
+          id = 14,
+          name = "door",
+          type = "town_01",
+          shape = "rectangle",
+          x = 706,
+          y = 1336,
+          width = 64,
+          height = 10,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["target_x"] = 592,
+            ["target_y"] = 320
+          }
         }
       }
     }

@@ -37,7 +37,12 @@
     <property name="target_y" type="int" value="288"/>
    </properties>
   </object>
-  <object id="5" name="door" type="town_01" x="577.333" y="461.333" width="30" height="18"/>
+  <object id="5" name="door" type="town_01" x="577.333" y="461.333" width="30" height="18">
+   <properties>
+    <property name="target_x" type="int" value="1856"/>
+    <property name="target_y" type="int" value="544"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="character" visible="0">
   <object id="6" name="character" x="580.61" y="317.963" visible="0">
