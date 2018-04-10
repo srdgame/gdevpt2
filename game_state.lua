@@ -104,6 +104,8 @@ function GameState:_init(screen_width, screen_height)
   self.is_fading_to_map = false
   self.destination_map = ""
   self.is_fading_to_encounter = false
+  self.is_fading_to_campfire = false
+  self.should_fade_to_campfire = false
 end
 -- max chars on screen
 local max_lines = 5
@@ -145,7 +147,7 @@ function GameState:update(dt)
   walk_sound_timer = walk_sound_timer + dt
   fade_out_timer = fade_out_timer + dt
 
-  if self.is_fading_to_map or self.is_fading_to_encounter then 
+  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire then 
     if (fade_out_timer >= fade_out_delay) then
       --pprint(fade_out_index)
       --pprint(fade_images[fade_out_index])
@@ -162,6 +164,9 @@ function GameState:update(dt)
             self.state = STATE_ENCOUNTER_INTRO
             self.current_benchmark = 1
           end
+          if (self.is_fading_to_campfire) then
+            self.state = STATE_CAMPFIRE
+          end
         end
       else
         fade_out_index = fade_out_index - 1
@@ -170,10 +175,11 @@ function GameState:update(dt)
           fade_out_index = 1
           self.is_fading_to_map = false
           self.is_fading_to_encounter = false
+          self.is_fading_to_campfire = false
         end
       end
     end
-end
+  end
 
   -- game state update
   if self.state == STATE_INTRO then
@@ -276,7 +282,11 @@ end
       if user_input_timer >= user_input_delay then
         if love.keyboard.isDown('space') then
           user_input_timer = 0
-          self.state = self.return_state_after_text
+          if self.should_fade_to_campfire then
+            self.is_fading_to_campfire = true
+          else
+            self.state = self.return_state_after_text
+          end
           self.text_buffer  = ""
           self.current_text = ""
           self.current_text_to_display_idx = 0
@@ -448,6 +458,7 @@ end
     if self.had_campfire then
       self.return_state_after_text = STATE_MOVING
     else
+      self.should_fade_to_campfire = true
       self.return_state_after_text = STATE_CAMPFIRE
     end
     -- remove enemy from map
@@ -880,7 +891,7 @@ function GameState:draw()
       love.graphics.translate(-tx, -ty)
     end      
   end
-  if self.is_fading_to_encounter then
+  if self.is_fading_to_encounter or self.is_fading_to_campfire then
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
   end
 end
