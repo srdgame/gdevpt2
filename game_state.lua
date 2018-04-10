@@ -101,6 +101,8 @@ function GameState:_init(screen_width, screen_height)
   self.showing_text_in_world = false
   self.title_card = love.graphics.newImage('data/titlecard_01.png')
   self.visual_fx = nil
+  self.is_fading_to_map = false
+  self.destination_map = ""
 end
 -- max chars on screen
 local max_lines = 5
@@ -142,22 +144,28 @@ function GameState:update(dt)
   walk_sound_timer = walk_sound_timer + dt
   fade_out_timer = fade_out_timer + dt
 
-  if (fade_out_timer >= fade_out_delay) then
-    pprint(fade_out_index)
-    pprint(fade_images[fade_out_index])
-    fade_out_timer = 0
-    if (is_fading_out) then
-      fade_out_index = fade_out_index + 1
-      if (fade_out_index == 10) then
-        is_fading_out = false
-      end
-    else
-      fade_out_index = fade_out_index - 1
-      if (fade_out_index == 1) then
-        is_fading_out = true
+  if self.is_fading_to_map then 
+    if (fade_out_timer >= fade_out_delay) then
+      --pprint(fade_out_index)
+      --pprint(fade_images[fade_out_index])
+      fade_out_timer = 0
+      if (is_fading_out) then
+        fade_out_index = fade_out_index + 1
+        if (fade_out_index == 10) then
+          is_fading_out = false 
+          self:initialize_map(self.destination_map[1], self.destination_map[2])
+          self.destination_map = ""
+        end
+      else
+        fade_out_index = fade_out_index - 1
+        if (fade_out_index == 1) then
+          is_fading_out = true
+          fade_out_index = 1
+          self.is_fading_to_map = false
+        end
       end
     end
-  end
+end
 
   -- game state update
   if self.state == STATE_INTRO then
@@ -218,6 +226,9 @@ function GameState:update(dt)
 
   -- MOVING
   elseif self.state == STATE_MOVING then
+    if self.is_fading_to_map then
+      return
+    end
     self.did_move = false
     self.showing_text_in_world = false
     -- check if player hit a door
@@ -575,7 +586,8 @@ function GameState:handle_door_collision()
         coords.x > wx + 32 or
         wy > coords.y + 32 or
         coords.y > wy + 32) then
-      self:initialize_map(map, coords.target)
+        self.is_fading_to_map = true
+        self.destination_map = {map, coords.target}
       break
     end
   end
@@ -612,7 +624,6 @@ function GameState:draw()
   if self.state == STATE_MAIN_MENU then
     love.graphics.draw(self.title_card, 0, 0)
 
-    love.graphics.draw(fade_images[fade_out_index], 0, 0)
 
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
@@ -856,8 +867,11 @@ function GameState:draw()
       end
       love.graphics.translate(-tx, -ty)
     end
-
-
+    if self.is_fading_to_map then
+      love.graphics.translate(tx, ty)
+      love.graphics.draw(fade_images[fade_out_index], 0, 0)
+      love.graphics.translate(-tx, -ty)
+    end      
   end
 end
 
