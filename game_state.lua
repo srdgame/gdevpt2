@@ -110,6 +110,13 @@ function GameState:_init(screen_width, screen_height)
   self.is_fading_to_map_from_campfire = false
   self.is_second_campfire = false
   self.fade_to_credits = false
+  self.fade_to_main_menu = false
+  self.should_fade_to_main_menu = false
+  -- ENEMY WIN/LOSE RANGE
+  -- over this and you win (encounter ends early)
+  self.enemy_win_min = 10
+  -- under this and you lose, else you win
+  self.enemy_lose_max = 0
 end
 
 -- max chars on screen
@@ -154,10 +161,9 @@ function GameState:update(dt)
 
   if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire
     or self.is_fading_to_map_from_campfire
-    or self.fade_to_credits then
+    or self.fade_to_credits
+    or self.fade_to_main_menu then
     if (fade_out_timer >= fade_out_delay) then
-      --pprint(fade_out_index)
-      --pprint(fade_images[fade_out_index])
       fade_out_timer = 0
       if (is_fading_out) then
         fade_out_index = fade_out_index + 1
@@ -185,6 +191,9 @@ function GameState:update(dt)
           if (self.fade_to_credits) then
             self.state = STATE_CREDITS
           end
+          if (self.fade_to_main_menu) then
+            self.state = STATE_MAIN_MENU
+          end
         end
       else
         fade_out_index = fade_out_index - 1
@@ -197,6 +206,7 @@ function GameState:update(dt)
           self.should_fade_to_campfire = false
           self.is_fading_to_map_from_campfire = false
           self.fade_to_credits = false
+          self.fade_to_main_menu = false
         end
       end
     end
@@ -308,6 +318,9 @@ function GameState:update(dt)
           user_input_timer = 0
           if self.should_fade_to_campfire then
             self.is_fading_to_campfire = true
+          elseif self.should_fade_to_main_menu then
+            self.fade_to_main_menu = true
+            self.should_fade_to_main_menu = false
           else
             self.state = self.return_state_after_text
           end
@@ -461,7 +474,7 @@ function GameState:update(dt)
         self.trust_change_amount = self.trust_change_amount + delta
     else
       -- is encounter over?
-      if self.enemy.trust > 10 then
+      if self.enemy.trust > self.enemy_win_min then
         self.state = STATE_ESCAPE_ENCOUNTER
       else
         -- check if we can advance to the next benchmark
@@ -469,7 +482,7 @@ function GameState:update(dt)
           self.current_benchmark = self.current_benchmark + 1
           -- is there another benchmark?
           if self:are_all_moves_nil(self.current_benchmark, 1) then
-            if self.enemy.trust >= 0 then
+            if self.enemy.trust >= self.enemy_lose_max then
               self.state = STATE_ESCAPE_ENCOUNTER
             else
               self.state = STATE_DIED_ENCOUNTER
@@ -485,19 +498,27 @@ function GameState:update(dt)
 
   elseif self.state == STATE_ESCAPE_ENCOUNTER
     or self.state == STATE_DIED_ENCOUNTER then
+    
     if self.had_campfire then
       self.is_second_campfire = true
     end
+    self.should_fade_to_campfire = true    
     -- enemy says encounter text
     if self.state == STATE_ESCAPE_ENCOUNTER then
       self.current_text = self:wrap_text(self.enemy.escape_text)
     else
       self.current_text = self:wrap_text(self.enemy.death_text)
     end
+    if self.state == STATE_DIED_ENCOUNTER then
+      self.return_state_after_text = STATE_MAIN_MENU
+      self.should_fade_to_campfire = false
+      self.should_fade_to_main_menu = true
+    else
+      self.return_state_after_text = STATE_CAMPFIRE
+    end
     self.current_talking_head = "enemy"
     self.state = STATE_SHOWING_TEXT
-    self.should_fade_to_campfire = true
-    self.return_state_after_text = STATE_CAMPFIRE
+
     -- remove enemy from map
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
@@ -959,15 +980,18 @@ function GameState:draw()
       end
       love.graphics.translate(-tx, -ty)
     end
-    if self.is_fading_to_encounter or self.is_fading_to_map or self.is_fading_to_map_from_campfire then
+    if self.is_fading_to_encounter or self.is_fading_to_map or self.is_fading_to_map_from_campfire 
+      or self.fade_to_main_menu then
       love.graphics.translate(tx, ty)
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
       love.graphics.translate(-tx, -ty)
       return
     end
   end
-  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire
-    or self.fade_to_credits then
+  
+  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire 
+    or self.fade_to_credits 
+    or self.fade_to_main_menu then
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
   end
 end
