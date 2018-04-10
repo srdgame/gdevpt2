@@ -148,8 +148,8 @@ function GameState:update(dt)
   walk_sound_timer = walk_sound_timer + dt
   fade_out_timer = fade_out_timer + dt
 
-  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire 
-    or self.is_fading_to_map_from_campfire then 
+  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire
+    or self.is_fading_to_map_from_campfire then
     if (fade_out_timer >= fade_out_delay) then
       --pprint(fade_out_index)
       --pprint(fade_images[fade_out_index])
@@ -157,7 +157,7 @@ function GameState:update(dt)
       if (is_fading_out) then
         fade_out_index = fade_out_index + 1
         if (fade_out_index == 10) then
-          is_fading_out = false 
+          is_fading_out = false
           if (self.is_fading_to_map) then
             self:initialize_map(self.destination_map[1], self.destination_map[2])
             self.destination_map = ""
@@ -807,7 +807,7 @@ function GameState:draw()
       or self.state == STATE_CHANGING_TRUST
       or self.state == STATE_ENCOUNTER_WAIT_FOR_INPUT
       or self.state == STATE_GET_NEXT_TEXT then
-       
+
       -- render textbox and talking head
         if self.current_talking_head == "narrator" then
           -- render textbox blnk
@@ -931,7 +931,7 @@ function GameState:draw()
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
       love.graphics.translate(-tx, -ty)
       return
-    end      
+    end
   end
   if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire then
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
@@ -984,6 +984,33 @@ function GameState:initialize_map(map, coords)
     if object.name == 'pickaxe' then
       table.insert(self.objects, Object:new(object.x, object.y, "The classic iron pickaxe. It appears that its previous owner abandoned it in a hurry. Perhaps they only needed it to obtain materials to create a better pickaxe."))
     end
+    if object.name == 'crate' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It doesn't seem like it's ever been opened. Knocking on it produces a hollow sound. Maybe it was just used as decoration, and never actually held anything."))
+    end
+    if object.name == 'tnt_box' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Explosives, for when regular mining just isn't dangerous enough. A close inspection reveals a small buildup of something crystalline on the wrappers. Perhaps someone less sane would see that as an opportunity, but you are not that person."))
+    end
+    if object.name == 'minecart_empty' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It seems to be made of ancient, well-rusted iron. All but one of its wheels have fused to their housing."))
+    end
+    if object.name == 'minecart_grey' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It's almost completely full of gravel. It appears that some genius overfilled it and then couldn't get it to move because it was too heavy."))
+      end
+    if object.name == 'minecart_brown' then
+      table.insert(self.objects, Object:new(object.x, object.y, "It appears that whoever has already explored this place decided that this pile of rocks wasn't worth looting, or even taking the time to walk all the way up to it and inspect it. And yet here you are. Go figure."))
+    end
+    if object.name == 'door_board' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Seems like it was boarded up long ago. Looking through the barrier, you can tell that the shaft beyond has caved in. Never have you been more certain that you cannot explore an area."))
+    end
+    if object.name == 'lamppost' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Sheera declares that this lamppost is arcane in nature. According to her, it's 'beginner's work,' but she's never made anything like it before, so maybe she's not being entirely honest."))
+    end
+    if object.name == 'open_chest' then
+      table.insert(self.objects, Object:new(object.x, object.y, "Whoever looted this chest beforehand seemed so excited about its contents that they also stole its lid. Perhaps they had a chest already, but needed a lid."))
+    end
+    if object.name == 'open_chest_deb' then
+      table.insert(self.objects, Object:new(object.x, object.y, "The lock on this chest is actually still intact, but a steel lock can only do so much to protect a wooden chest from someone with an axe and enough determination."))
+end
     if object.name == 'sign_forest' then
       table.insert(self.objects, Object:new(object.x, object.y, "The sign reads: \"Path to old mines closed due to increased goblin activity in the area.\""))
     end
