@@ -763,10 +763,10 @@ function GameState:draw()
           end
             love.graphics.draw(idea, self.characters[k].campfire_x + 25,
               self.characters[k].campfire_y - 10, 0, 1, 1, 0, 0)
-          end
         end
       end
-    -- render 'next' modals
+    
+      -- render 'next' modals
     if self.state == STATE_GET_NEXT_TEXT
     or (self.current_text_to_display_idx > 0
       and self.current_text_to_display_idx == string.len(self.current_text)) then
