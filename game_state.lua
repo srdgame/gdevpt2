@@ -982,13 +982,13 @@ function GameState:initialize_map(map, coords)
       self.enemy.y = object.y
     end
     if object.name == "knight" then
-      self.enemy = Enemy:new(love.graphics.newImage('data/dungeon_graadiabs.png'),
-                        love.graphics.newImage('data/battle_graadiabs.png'),
-                        love.graphics.newImage('data/textbox_graadiabs.png'))
+      self.enemy = Enemy:new(love.graphics.newImage('data/dungeon_guard.png'),
+                        love.graphics.newImage('data/battle_guard.png'),
+                        love.graphics.newImage('data/textbox_guard.png'))
       self.enemy.x = object.x
       self.enemy.y = object.y
       self.enemy:next_encounter()
-
+      self.encounter_background = love.graphics.newImage('data/background_guard.png')
     end
     if object.name == 'door' then
       coords = {}

@@ -1,7 +1,7 @@
 return {
   version = "1.1",
   luaversion = "5.1",
-  tiledversion = "1.1.2",
+  tiledversion = "0.17.0",
   orientation = "orthogonal",
   renderorder = "right-down",
   width = 30,
@@ -25,11 +25,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {
@@ -93,11 +88,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {
@@ -203,11 +193,6 @@ return {
       tileoffset = {
         x = 0,
         y = 0
-      },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
       },
       properties = {},
       terrains = {},
@@ -428,11 +413,6 @@ return {
         x = 0,
         y = 0
       },
-      grid = {
-        orientation = "orthogonal",
-        width = 32,
-        height = 32
-      },
       properties = {},
       terrains = {},
       tilecount = 99,
@@ -611,7 +591,7 @@ return {
         {
           id = 4,
           name = "door",
-          type = "inn_02",
+          type = "inn_04",
           shape = "rectangle",
           x = 417.43,
           y = 366.3,
