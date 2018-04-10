@@ -49,7 +49,7 @@ function GameState:_init(screen_width, screen_height)
   self.screen_width = screen_width
   self.screen_height = screen_height
   self.did_move = false
-  self.state = STATE_MOVING
+  self.state = STATE_CAMPFIRE
   self.return_state_after_text = STATE_MOVING
   self.encounter_background = love.graphics.newImage('data/background_graadiabs.png')
   self.current_text = ""
@@ -106,6 +106,7 @@ function GameState:_init(screen_width, screen_height)
   self.is_fading_to_encounter = false
   self.is_fading_to_campfire = false
   self.should_fade_to_campfire = false
+  self.is_fading_to_map_from_campfire = false
 end
 -- max chars on screen
 local max_lines = 5
@@ -147,7 +148,8 @@ function GameState:update(dt)
   walk_sound_timer = walk_sound_timer + dt
   fade_out_timer = fade_out_timer + dt
 
-  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire then 
+  if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire 
+    or self.is_fading_to_map_from_campfire then 
     if (fade_out_timer >= fade_out_delay) then
       --pprint(fade_out_index)
       --pprint(fade_images[fade_out_index])
@@ -166,6 +168,10 @@ function GameState:update(dt)
           end
           if (self.is_fading_to_campfire) then
             self.state = STATE_CAMPFIRE
+          end
+          if (self.is_fading_to_map_from_campfire) then
+            self.is_campfire = false
+            self:initialize_map('forest_01')
           end
         end
       else
@@ -483,22 +489,25 @@ function GameState:update(dt)
     self.enemy.image_world = "deleted"
 
   elseif self.state == STATE_CAMPFIRE then
+    if self.is_fading_to_map_from_campfire then
+      return
+    end
     if self.is_campfire == false then
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("fireside_chat", 1, true)
       self.current_song:play()
-      self:initialize_map('forest_01')
+      --self:initialize_map('forest_01')
     end
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
     
     if self.campfire_position == 16 then
       self.state = STATE_MOVING
-      self.is_campfire = false
       self.had_campfire = true
       self.current_song:stop()
       self.current_song = self.audio_manager:get_sound("forest", 1, true)
       self.current_song:play()
+      self.is_fading_to_map_from_campfire = true
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
@@ -915,10 +924,11 @@ function GameState:draw()
       end
       love.graphics.translate(-tx, -ty)
     end
-    if self.is_fading_to_map then
+    if self.is_fading_to_map or self.is_fading_to_map_from_campfire then
       love.graphics.translate(tx, ty)
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
       love.graphics.translate(-tx, -ty)
+      return
     end      
   end
   if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire then
