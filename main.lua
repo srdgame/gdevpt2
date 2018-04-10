@@ -10,8 +10,8 @@ function love.conf(t)
 end
 
 function love.load()
-  local screen_width = 640
-  local screen_height = 480
+  local screen_width = 1600
+  local screen_height = 900
   love.window.setMode(screen_width, screen_height)
   game_state = GameState:new(screen_width, screen_height)
 
@@ -32,7 +32,7 @@ function love.load()
   }
 
   game_state:initialize_characters(animations)
-  game_state:initialize_map('inn_03')
+  game_state:initialize_map('tutorial_03')
 end
 
 -- Update Game State

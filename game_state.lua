@@ -24,6 +24,7 @@ local STATE_CAMPFIRE = 12
 local STATE_MAIN_MENU = 10
 local STATE_RESOLUTION_SELECT = 11
 
+local STATE_CREDITS = 100
 -- Represents the GameState
 -- This is everything in the game world that is updated and rendered.
 local GameState = {}
@@ -107,6 +108,8 @@ function GameState:_init(screen_width, screen_height)
   self.is_fading_to_campfire = false
   self.should_fade_to_campfire = false
   self.is_fading_to_map_from_campfire = false
+  self.is_second_campfire = false
+  self.fade_to_credits = false
 end
 
 -- max chars on screen
@@ -150,7 +153,8 @@ function GameState:update(dt)
   fade_out_timer = fade_out_timer + dt
 
   if self.is_fading_to_map or self.is_fading_to_encounter or self.is_fading_to_campfire
-    or self.is_fading_to_map_from_campfire then
+    or self.is_fading_to_map_from_campfire
+    or self.fade_to_credits then
     if (fade_out_timer >= fade_out_delay) then
       --pprint(fade_out_index)
       --pprint(fade_images[fade_out_index])
@@ -174,6 +178,9 @@ function GameState:update(dt)
             self.is_campfire = false
             self:initialize_map('forest_01')
           end
+          if (self.fade_to_credits) then
+            self.state = STATE_CREDITS
+          end
         end
       else
         fade_out_index = fade_out_index - 1
@@ -185,6 +192,7 @@ function GameState:update(dt)
           self.is_fading_to_campfire = false
           self.should_fade_to_campfire = false
           self.is_fading_to_map_from_campfire = false
+          self.fade_to_credits = false
         end
       end
     end
@@ -473,6 +481,9 @@ function GameState:update(dt)
 
   elseif self.state == STATE_ESCAPE_ENCOUNTER
     or self.state == STATE_DIED_ENCOUNTER then
+    if self.had_campfire then
+      self.is_second_campfire = true
+    end
     -- enemy says encounter text
     if self.state == STATE_ESCAPE_ENCOUNTER then
       self.current_text = self:wrap_text(self.enemy.escape_text)
@@ -481,13 +492,8 @@ function GameState:update(dt)
     end
     self.current_talking_head = "enemy"
     self.state = STATE_SHOWING_TEXT
-    if self.had_campfire then
-      self.return_state_after_text = STATE_MOVING
-
-    else
-      self.should_fade_to_campfire = true
-      self.return_state_after_text = STATE_CAMPFIRE
-    end
+    self.should_fade_to_campfire = true
+    self.return_state_after_text = STATE_CAMPFIRE
     -- remove enemy from map
     self:remove_enemy_from_map(self.map)
     self.enemy.image_world = "deleted"
@@ -498,7 +504,7 @@ function GameState:update(dt)
     end
 
   elseif self.state == STATE_CAMPFIRE then
-    if self.is_fading_to_map_from_campfire then
+    if self.is_fading_to_map_from_campfire or self.fade_to_credits then
       return
     end
     if self.is_campfire == false then
@@ -509,7 +515,11 @@ function GameState:update(dt)
     self.campfire_position = self.campfire_position + 1
     self.is_campfire = true
 
-    if self.campfire_position == 16 then
+    if self.campfire_position == 16 or self.campfire_position == 33 then
+      if self.is_second_campfire then
+        self.fade_to_credits = true
+        return
+      end
       self.state = STATE_MOVING
       self.had_campfire = true
 
@@ -517,7 +527,7 @@ function GameState:update(dt)
       self.current_song = self.audio_manager:get_sound("forest", 1, true)
       self.current_song:play()
       self.is_fading_to_map_from_campfire = true
-
+      self.campfire_position = 0
     else
      self.state = STATE_ENCOUNTER_WAIT_FOR_INPUT
      self.return_state_after_text = STATE_CAMPFIRE
@@ -686,7 +696,18 @@ function GameState:draw()
   local sheight = love.graphics.getHeight() / scale_screen_height
   love.graphics.scale(scale_screen_width, scale_screen_height)
 
-  if self.state == STATE_MAIN_MENU then
+  if self.state == STATE_CREDITS then
+    love.graphics.printf("CREDITS", 0, 30, swidth, "center")
+    love.graphics.printf("Arvin Sharma: Lead Programmer", 0, 90, swidth, "center")
+    love.graphics.printf("Eric Crawford: Lead Artist", 0, 120, swidth, "center")
+    love.graphics.printf("Lena Wyant: Head Writer", 0, 150, swidth, "center")
+    love.graphics.printf("Caroline Pasyanos: Project Manager", 0, 180, swidth, "center")
+    love.graphics.printf("Michael Lucas: Programmer", 0, 210, swidth, "center")
+    love.graphics.printf("Arjun Arora: Sound Designer", 0, 240, swidth, "center")
+
+    love.graphics.printf("Thanks for playing!", 0, 300, swidth, "center")
+
+  elseif self.state == STATE_MAIN_MENU then
     love.graphics.draw(self.title_card, 0, 0)
   elseif self.state == STATE_RESOLUTION_SELECT then
     love.graphics.print({{255,255,128}, "Press the number of the new Resolution. ESC to go back."}, math.floor(swidth * .3), math.floor(sheight / 4))
@@ -946,7 +967,8 @@ function GameState:draw()
       return
     end
   end
-  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire then
+  if self.is_fading_to_encounter or self.is_fading_to_campfire or self.is_fading_to_map_from_campfire 
+    or self.fade_to_credits then
       love.graphics.draw(fade_images[fade_out_index], 0, 0)
   end
 end
