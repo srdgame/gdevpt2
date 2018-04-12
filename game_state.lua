@@ -348,7 +348,7 @@ function GameState:update(dt)
            -- play sound when we add another character
           if (text_sound_timer >= text_sound_delay) then
             text_sound_timer = 0
-            local sfx = love.audio.newSource('audio/char-text.wav')
+            local sfx = love.audio.newSource('audio/char-text.wav', 'static')
             sfx:setVolume(1)
             sfx:play()
           end
@@ -631,7 +631,7 @@ function GameState:update_move_player(dt)
   if did_move then
     if walk_sound_timer >= walk_sound_delay then
       walk_sound_timer = 0
-      local sfx = love.audio.newSource('audio/walk.wav')
+      local sfx = love.audio.newSource('audio/walk.wav', 'static')
       sfx:setVolume(.5)
       sfx:play()
     end

@@ -20,7 +20,6 @@ function AudioManager:get_sound(sound, volume, looping)
     self.sounds[sound] = love.audio.newSource('audio/' .. sound .. '.wav', "static")
   end
   local s = self.sounds[sound]
-  s:rewind()
   s:setVolume(volume)
   s:setLooping(looping)
   return s
