@@ -17,7 +17,7 @@ end
 
 function AudioManager:get_sound(sound, volume, looping)
   if (self.sounds[sound] == nil) then
-    self.sounds[sound] = love.audio.newSource('audio/' .. sound .. '.wav')
+    self.sounds[sound] = love.audio.newSource('audio/' .. sound .. '.wav', "static")
   end
   local s = self.sounds[sound]
   s:rewind()
